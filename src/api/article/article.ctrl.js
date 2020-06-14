@@ -14,7 +14,7 @@ export const checkObjectId = (ctx, next) => {
   return next();
 };
 
-export const write = async (ctx) => {
+export const save = async (ctx) => {
   const schema = Joi.object().keys({
     url: Joi.string().required(),
     tags: Joi.array().items(Joi.string()).required(),
@@ -35,6 +35,7 @@ export const write = async (ctx) => {
   });
 
   try {
+    await article.createMetaData();
     await article.save();
     ctx.body = article;
   } catch (error) {

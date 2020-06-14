@@ -5,7 +5,7 @@ import * as articleCtrl from './article.ctrl.js';
 const articles = new Router();
 
 articles.get('/', articleCtrl.list);
-articles.post('/', articleCtrl.write);
+articles.post('/', articleCtrl.save);
 
 const article = new Router();
 article.get('/', articleCtrl.read);
