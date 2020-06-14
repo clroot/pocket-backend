@@ -1,9 +1,9 @@
 import Router from 'koa-router';
 
-import posts from './posts';
+import article from './article';
 
 const api = new Router();
 
-api.use('/posts', posts.routes());
+api.use('/articles', article.routes());
 
 export default api;

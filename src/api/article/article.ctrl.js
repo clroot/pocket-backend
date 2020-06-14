@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Joi from '@hapi/joi';
-import Post from '../../models/posts';
+import Article from '../../models/article';
 
 const { ObjectId } = mongoose.Types;
 
@@ -16,8 +16,7 @@ export const checkObjectId = (ctx, next) => {
 
 export const write = async (ctx) => {
   const schema = Joi.object().keys({
-    title: Joi.string().required(),
-    body: Joi.string().required(),
+    url: Joi.string().required(),
     tags: Joi.array().items(Joi.string()).required(),
   });
 
@@ -28,16 +27,16 @@ export const write = async (ctx) => {
     return;
   }
 
-  const { title, body, tags } = ctx.request.body;
-  const posts = new Post({
-    title,
-    body,
+  const { url, tags } = ctx.request.body;
+
+  const article = new Article({
+    url,
     tags,
   });
 
   try {
-    await posts.save();
-    ctx.body = posts;
+    await article.save();
+    ctx.body = article;
   } catch (error) {
     ctx.throw(500, error);
   }
@@ -51,21 +50,17 @@ export const list = async (ctx) => {
   }
 
   try {
-    const posts = await Post.find()
+    const articles = await Article.find()
       .sort({ _id: -1 })
       .limit(10)
       .skip((page - 1) * 10)
       .lean()
       .exec();
 
-    const postsCount = await Post.countDocuments().exec();
+    const articlesCount = await Article.countDocuments().exec();
 
-    ctx.set('Last-Page', Math.ceil(postsCount / 10));
-    ctx.body = posts.map((post) => ({
-      ...post,
-      body:
-        post.body.length < 200 ? post.body : `${post.body.slice(0, 200)}...`,
-    }));
+    ctx.set('Last-Page', Math.ceil(articlesCount / 10));
+    ctx.body = articles;
   } catch (error) {
     ctx.throw(500, error);
   }
@@ -74,13 +69,13 @@ export const list = async (ctx) => {
 export const read = async (ctx) => {
   const { id } = ctx.params;
   try {
-    const post = await Post.findById(id).exec();
-    if (!post) {
+    const article = await Article.findById(id).exec();
+    if (!article) {
       ctx.status = 404;
       return;
     }
 
-    ctx.body = post;
+    ctx.body = article;
   } catch (error) {
     ctx.throw(500, error);
   }
@@ -89,7 +84,7 @@ export const read = async (ctx) => {
 export const remove = async (ctx) => {
   const { id } = ctx.params;
   try {
-    await Post.findByIdAndRemove(id).exec();
+    await Article.findByIdAndRemove(id).exec();
     ctx.status = 204;
   } catch (error) {
     ctx.throw(500, error);
@@ -98,8 +93,7 @@ export const remove = async (ctx) => {
 
 export const update = async (ctx) => {
   const schema = Joi.object().keys({
-    title: Joi.string(),
-    body: Joi.string(),
+    url: Joi.string(),
     tags: Joi.array().items(Joi.string()),
   });
 
@@ -112,15 +106,15 @@ export const update = async (ctx) => {
 
   const { id } = ctx.params;
   try {
-    const post = await Post.findByIdAndUpdate(id, ctx.request.body, {
+    const article = await Article.findByIdAndUpdate(id, ctx.request.body, {
       new: true,
     }).exec();
-    if (!post) {
+    if (!article) {
       ctx.status = 404;
       return;
     }
 
-    ctx.body = post;
+    ctx.body = article;
   } catch (error) {
     ctx.throw(500, error);
   }
