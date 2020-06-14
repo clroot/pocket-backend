@@ -35,6 +35,7 @@ export const write = async (ctx) => {
   });
 
   try {
+    await article.createMetaData();
     await article.save();
     ctx.body = article;
   } catch (error) {
