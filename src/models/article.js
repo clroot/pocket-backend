@@ -11,6 +11,10 @@ const ArticleSchema = new Schema({
     img: String,
   },
   tags: [String],
+  user: {
+    _id: mongoose.Types.ObjectId,
+    username: String,
+  },
   createAt: {
     type: Date,
     default: Date.now,

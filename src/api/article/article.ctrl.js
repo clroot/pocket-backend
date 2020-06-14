@@ -4,10 +4,31 @@ import Article from '../../models/article';
 
 const { ObjectId } = mongoose.Types;
 
-export const checkObjectId = (ctx, next) => {
+export const getArticleById = async (ctx, next) => {
   const { id } = ctx.params;
   if (!ObjectId.isValid(id)) {
     ctx.status = 400;
+    return;
+  }
+
+  try {
+    const article = await Article.findById(id);
+    if (!article) {
+      ctx.status = 404;
+      return;
+    }
+
+    ctx.state.article = article;
+    return next();
+  } catch (error) {
+    ctx.throw(500, error);
+  }
+};
+
+export const checkOwnArticle = (ctx, next) => {
+  const { user, article } = ctx.state;
+  if (article.user._id.toString() !== user._id) {
+    ctx.status = 403;
     return;
   }
 
@@ -32,6 +53,7 @@ export const save = async (ctx) => {
   const article = new Article({
     url,
     tags,
+    user: ctx.state.user,
   });
 
   try {
@@ -68,18 +90,7 @@ export const list = async (ctx) => {
 };
 
 export const read = async (ctx) => {
-  const { id } = ctx.params;
-  try {
-    const article = await Article.findById(id).exec();
-    if (!article) {
-      ctx.status = 404;
-      return;
-    }
-
-    ctx.body = article;
-  } catch (error) {
-    ctx.throw(500, error);
-  }
+  ctx.body = ctx.state.article;
 };
 
 export const remove = async (ctx) => {
