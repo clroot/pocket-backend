@@ -22,7 +22,7 @@ mongoose
 const app = new Koa();
 const router = new Router();
 
-router.use('/api', api.routes());
+router.use('/api/v1', api.routes());
 
 app.use(logger());
 app.use(bodyParser());
