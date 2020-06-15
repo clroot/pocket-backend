@@ -72,8 +72,16 @@ export const list = async (ctx) => {
     return;
   }
 
+  const { user } = ctx.state;
+  const { tag } = ctx.query;
+
+  const query = {
+    'user.username': user.username,
+    ...(tag ? { tags: tag } : {}),
+  };
+
   try {
-    const articles = await Article.find()
+    const articles = await Article.find(query)
       .sort({ _id: -1 })
       .limit(10)
       .skip((page - 1) * 10)

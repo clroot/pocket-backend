@@ -5,7 +5,7 @@ import checkLoggedIn from '../../lib/checkLoggedIn';
 
 const articles = new Router();
 
-articles.get('/', articleCtrl.list);
+articles.get('/', checkLoggedIn, articleCtrl.list);
 articles.post('/', checkLoggedIn, articleCtrl.save);
 
 const article = new Router();
