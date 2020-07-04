@@ -27,6 +27,12 @@ export const register = async (ctx) => {
     await user.save();
 
     ctx.body = user.serialize();
+
+    const token = user.generateToken();
+    ctx.cookies.set('access_token', token, {
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      httpOnly: true,
+    });
   } catch (error) {
     ctx.throw(500, error);
   }
