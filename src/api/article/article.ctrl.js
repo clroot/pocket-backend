@@ -106,6 +106,7 @@ export const remove = async (ctx) => {
   try {
     await Article.findByIdAndRemove(id).exec();
     ctx.status = 204;
+    ctx.set('Removed-Article', id);
   } catch (error) {
     ctx.throw(500, error);
   }
