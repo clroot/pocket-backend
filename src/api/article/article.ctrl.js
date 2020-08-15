@@ -130,6 +130,7 @@ export const update = async (ctx) => {
     const article = await Article.findByIdAndUpdate(id, ctx.request.body, {
       new: true,
     }).exec();
+    await article.createMetaData();
     if (!article) {
       ctx.status = 404;
       return;
