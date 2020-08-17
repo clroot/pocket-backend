@@ -114,7 +114,6 @@ export const remove = async (ctx) => {
 
 export const update = async (ctx) => {
   const schema = Joi.object().keys({
-    url: Joi.string(),
     tags: Joi.array().items(Joi.string()),
   });
 
