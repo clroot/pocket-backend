@@ -49,16 +49,11 @@ ArticleSchema.methods.createMetaData = async function () {
 };
 
 ArticleSchema.methods.generateTagData = async function () {
-  console.log(this.user);
-  const ownerId = this.user._id;
+  const userId = this.user;
   const tags = this.tags;
   if (tags) {
     tags.forEach(async (name) => {
-      const tag = await Tag.findByNameAndOwnerId(name, ownerId);
-      if (!tag) {
-        const record = new Tag({ name, ownerId });
-        await record.save();
-      }
+      await Tag.findOrCreate(name, userId);
     });
   }
 };
