@@ -53,11 +53,12 @@ export const save = async (ctx) => {
   const article = new Article({
     url,
     tags,
-    user: ctx.state.user,
+    user: ctx.state.user._id,
   });
 
   try {
     await article.createMetaData();
+    await article.generateTagData();
     await article.save();
     ctx.body = article;
   } catch (error) {
@@ -76,7 +77,7 @@ export const list = async (ctx) => {
   const { tag } = ctx.query;
 
   const query = {
-    'user.username': user.username,
+    user: user._id,
     ...(tag ? { tags: tag } : {}),
   };
 
@@ -130,6 +131,7 @@ export const update = async (ctx) => {
       new: true,
     }).exec();
     await article.createMetaData();
+    await article.generateTagData();
     if (!article) {
       ctx.status = 404;
       return;

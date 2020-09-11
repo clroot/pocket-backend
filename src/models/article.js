@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import axios from 'axios';
 import ogs from 'open-graph-scraper';
 import cheerio from 'cheerio';
+import Tag from './tag';
 
 const ArticleSchema = new Schema({
   url: String,
@@ -12,8 +13,8 @@ const ArticleSchema = new Schema({
   },
   tags: [String],
   user: {
-    _id: mongoose.Types.ObjectId,
-    username: String,
+    type: mongoose.Types.ObjectId,
+    ref: 'User',
   },
   createAt: {
     type: Date,
@@ -44,6 +45,21 @@ ArticleSchema.methods.createMetaData = async function () {
   } catch (error) {
     console.error(error);
     throw new Error("Can not create article's meta data");
+  }
+};
+
+ArticleSchema.methods.generateTagData = async function () {
+  console.log(this.user);
+  const ownerId = this.user._id;
+  const tags = this.tags;
+  if (tags) {
+    tags.forEach(async (name) => {
+      const tag = await Tag.findByNameAndOwnerId(name, ownerId);
+      if (!tag) {
+        const record = new Tag({ name, ownerId });
+        await record.save();
+      }
+    });
   }
 };
 
