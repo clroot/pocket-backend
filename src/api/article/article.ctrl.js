@@ -26,8 +26,12 @@ export const getArticleById = async (ctx, next) => {
 };
 
 export const checkOwnArticle = (ctx, next) => {
-  const { user, article } = ctx.state;
-  if (article.user._id.toString() !== user._id) {
+  const {
+    auth: { user },
+    article,
+  } = ctx.state;
+
+  if (article.user.toString() !== user) {
     ctx.status = 403;
     return;
   }
@@ -49,11 +53,12 @@ export const save = async (ctx) => {
   }
 
   const { url, tags } = ctx.request.body;
+  const { user } = ctx.state.auth;
 
   const article = new Article({
     url,
     tags,
-    user: ctx.state.user._id,
+    user,
   });
 
   try {
@@ -73,11 +78,11 @@ export const list = async (ctx) => {
     return;
   }
 
-  const { user } = ctx.state;
+  const { user } = ctx.state.auth;
   const { tag } = ctx.query;
 
   const query = {
-    user: user._id,
+    user,
     ...(tag ? { tags: tag } : {}),
   };
 

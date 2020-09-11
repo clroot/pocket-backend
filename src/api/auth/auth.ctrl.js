@@ -69,13 +69,13 @@ export const login = async (ctx) => {
   }
 };
 export const check = async (ctx) => {
-  const { user } = ctx.state;
-  if (!user) {
+  const { auth } = ctx.state;
+  if (!auth) {
     ctx.status = 401;
     return;
   }
 
-  ctx.body = user;
+  ctx.body = auth;
 };
 export const logout = async (ctx) => {
   ctx.cookies.set('access_token');

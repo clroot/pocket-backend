@@ -1,5 +1,5 @@
 const checkLoggedIn = (ctx, next) => {
-  if (!ctx.state.user) {
+  if (!ctx.state.auth) {
     ctx.status = 401;
     return;
   }
