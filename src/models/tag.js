@@ -15,7 +15,7 @@ TagSchema.statics.findOrCreate = async function (name, user) {
   }
 };
 TagSchema.statics.findByUser = function (user) {
-  return this.find({ user });
+  return this.find({ user }).select('name -_id');
 };
 
 const Tag = mongoose.model('Tag', TagSchema);
