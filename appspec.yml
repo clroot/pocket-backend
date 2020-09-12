@@ -3,3 +3,15 @@ os: linux
 files:
   - source: /
     destination: /home/ubuntu/app/pocket/backend/build
+    overwrite: yes
+
+permissions:
+  - object: /
+    pattern: '**'
+    owner: ubuntu
+    group: ubuntu
+#hooks:
+#  ApplicationStart:
+#    - location: deploy.sh
+#      timeout: 60
+#      runas: ubuntu
