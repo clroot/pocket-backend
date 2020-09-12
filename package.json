@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start": "node -r esm src",
-    "start:dev": "nodemon --watch src/ -r esm src/index.js"
+    "start:dev": "nodemon --watch src/ -r esm src/index.js",
+    "test": ""
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
