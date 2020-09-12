@@ -8,3 +8,15 @@ notifications:
   email:
     recipients:
       - abcdkh1209@icloud.com
+deploy:
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: pocket-backend-deploy
+    region: ap-northeast-2
+    skip_cleanup: true
+    acl: public_read
+    wait-until-deployed: true
+    on:
+      repo: clroot/pocket-backend
+      branch: master
