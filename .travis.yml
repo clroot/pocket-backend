@@ -9,10 +9,13 @@ notifications:
     recipients:
       - abcdkh1209@icloud.com
 before_deploy:
-  - rm -rf node_modules
-  - zip -r pocket-backend *
-  - mkdir -p deploy
-  - mv pocket-backend.zip deploy/pocket-backend.zip
+  - mkdir -p before-deploy
+  - cp scripts/*.sh before-deploy
+  - cp package.json before-deploy
+  - cp -r src before-deploy
+  - cp appspec.yml before-deploy
+  - cd before-deploy && zip -r before-deploy *
+  - mv before-deploy/before-deploy.zip deploy/pocket-backend.zip
 deploy:
   - provider: s3
     access_key_id: $AWS_ACCESS_KEY
