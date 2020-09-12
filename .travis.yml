@@ -9,6 +9,7 @@ notifications:
     recipients:
       - abcdkh1209@icloud.com
 before_deploy:
+  - rm -rf node_modules
   - zip -r pocket-backend *
   - mkdir -p deploy
   - mv pocket-backend.zip deploy/pocket-backend.zip
