@@ -20,7 +20,7 @@ deploy:
     bucket: pocket-backend-deploy
     region: ap-northeast-2
     skip_cleanup: true
-    acl: public_read
+    acl: private
     local_dir: deploy
     wait-until-deployed: true
     on:
