@@ -5,7 +5,12 @@ EXIST_BLUE=$(docker ps -a | grep ${DOCKER_APP_NAME}-blue)
 
 if [ -z "$EXIST_BLUE" ]; then
 	echo "blue is available"
-	docker run -d --name ${DOCKER_APP_NAME}-blue -v /home/ubuntu/app/pocket/backend:/deploy/node-app -p 4001:4000 --network=clroot clroot/node-app:1 
+	docker run -d --name ${DOCKER_APP_NAME}-blue \
+		-v /home/ubuntu/app/pocket/backend:/deploy/node-app \
+		-v /home/ubuntu/app/pocket/frontend:deploy/frontend/build \
+		-p 4001:4000 \
+		--network=clroot \
+		clroot/node-app:1 
 	sleep 10
 	EXIST_GREEN=$(docker ps -a | grep ${DOCKER_APP_NAME}-green)
 	if [ "$EXIST_GREEN" ]; then
@@ -14,7 +19,12 @@ if [ -z "$EXIST_BLUE" ]; then
 	fi
 else
 	echo "green is available"
-	docker run -d --name ${DOCKER_APP_NAME}-green -v /home/ubuntu//app/pocket/backend:/deploy/node-app -p 4002:4000 --network=clroot clroot/node-app:1 
+	docker run -d --name ${DOCKER_APP_NAME}-green \
+		-v /home/ubuntu/app/pocket/backend:/deploy/node-app \
+		-v /home/ubuntu/app/pocket/frontend:deploy/frontend/build \
+		-p 4001:4000 \
+		--network=clroot \
+		clroot/node-app:1
 	sleep 10
 	EXIST_BLUE=$(docker ps -a | grep ${DOCKER_APP_NAME}-blue)
 	if [ "$EXIST_BLUE" ]; then
