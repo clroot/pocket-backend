@@ -7,7 +7,7 @@ if [ -z "$EXIST_BLUE" ]; then
 	echo "blue is available"
 	docker run -d --name ${DOCKER_APP_NAME}-blue \
 		-v /home/ubuntu/app/pocket/backend:/deploy/node-app \
-		-v /home/ubuntu/app/pocket/frontend:deploy/frontend/build \
+		-v /home/ubuntu/app/pocket/frontend:/deploy/frontend/build \
 		-p 4001:4000 \
 		--network=clroot \
 		clroot/node-app:1 
@@ -21,7 +21,7 @@ else
 	echo "green is available"
 	docker run -d --name ${DOCKER_APP_NAME}-green \
 		-v /home/ubuntu/app/pocket/backend:/deploy/node-app \
-		-v /home/ubuntu/app/pocket/frontend:deploy/frontend/build \
+		-v /home/ubuntu/app/pocket/frontend:/deploy/frontend/build \
 		-p 4001:4000 \
 		--network=clroot \
 		clroot/node-app:1
