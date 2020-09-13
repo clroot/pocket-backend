@@ -22,7 +22,7 @@ else
 	docker run -d --name ${DOCKER_APP_NAME}-green \
 		-v /home/ubuntu/app/pocket/backend:/deploy/node-app \
 		-v /home/ubuntu/app/pocket/frontend:/deploy/frontend/build \
-		-p 4001:4000 \
+		-p 4002:4000 \
 		--network=clroot \
 		clroot/node-app:1
 	sleep 10
