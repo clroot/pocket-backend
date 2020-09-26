@@ -10,9 +10,14 @@ if [ -z "$EXIST_BLUE" ]; then
 		-v /home/ubuntu/app/pocket/frontend:/deploy/frontend/build \
 		-p 4001:4000 \
 		--network=clroot \
-		clroot/node-app:1 
-	sleep 10
+		--restart=always \
+		clroot/node-app
+	sleep 5
+
+	echo "set \$service_url http://127.0.0.1:4001;" | sudo tee /etc/nginx/conf.d/pocket-url.inc 
+	sudo service nginx reload
 	EXIST_GREEN=$(docker ps -a | grep ${DOCKER_APP_NAME}-green)
+
 	if [ "$EXIST_GREEN" ]; then
 		echo "green is running. stoping green...."
 		docker rm -f ${DOCKER_APP_NAME}-green
@@ -24,9 +29,14 @@ else
 		-v /home/ubuntu/app/pocket/frontend:/deploy/frontend/build \
 		-p 4002:4000 \
 		--network=clroot \
-		clroot/node-app:1
-	sleep 10
+		--restart=always \
+		clroot/node-app
+	sleep 5
+
+	echo "set \$service_url http://127.0.0.1:4002;" | sudo tee /etc/nginx/conf.d/pocket-url.inc 
+	sudo service nginx reload
 	EXIST_BLUE=$(docker ps -a | grep ${DOCKER_APP_NAME}-blue)
+
 	if [ "$EXIST_BLUE" ]; then
 		echo "blue is running. stoping blue...."
 		docker rm -f ${DOCKER_APP_NAME}-blue
