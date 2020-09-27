@@ -3,7 +3,18 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const UserSchema = new Schema({
-  username: String,
+  email: {
+    type: String,
+    trim: true,
+    unique: true,
+    required: true,
+  },
+  username: {
+    type: String,
+    trim: true,
+    index: true,
+    required: true,
+  },
   hashedPassword: String,
 });
 
@@ -38,8 +49,8 @@ UserSchema.methods.generateToken = function () {
   return token;
 };
 
-UserSchema.statics.findByUsername = function (username) {
-  return this.findOne({ username });
+UserSchema.statics.findByEmail = function (email) {
+  return this.findOne({ email });
 };
 
 const User = mongoose.model('User', UserSchema);
