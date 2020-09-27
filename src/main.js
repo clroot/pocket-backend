@@ -9,7 +9,7 @@ import path from 'path';
 import send from 'koa-send';
 
 import api from './api';
-import jwtMiddleware from './lib/jwtMiddleware';
+import { consumeUser } from './lib/token';
 
 const { PORT, MONGO_URI } = process.env;
 
@@ -29,7 +29,7 @@ router.use('/api/v1', api.routes());
 
 app.use(logger());
 app.use(bodyParser());
-app.use(jwtMiddleware);
+app.use(consumeUser);
 app.use(router.routes()).use(router.allowedMethods());
 
 const buildDirectory = path.resolve(__dirname, '../../frontend/build');

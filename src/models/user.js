@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import { generateToken } from '../lib/token';
 
 const UserSchema = new Schema({
   email: {
@@ -35,18 +35,7 @@ UserSchema.methods.serialize = function () {
 };
 
 UserSchema.methods.generateToken = function () {
-  const token = jwt.sign(
-    {
-      _id: this.id,
-      username: this.username,
-    },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: '7d',
-    },
-  );
-
-  return token;
+  return generateToken({ _id: this.id, username: this.username });
 };
 
 UserSchema.statics.findByEmail = function (email) {

@@ -1,12 +1,33 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
 
-const jwtMiddleware = async (ctx, next) => {
+export const generateToken = (payload, options = {}) => {
+  const jwtOptions = {
+    issuer: 'pocket.clroot.io',
+    expiresIn: '7d',
+    ...options,
+  };
+  const secretKey = process.env.JWT_SECRET;
+
+  if (!jwtOptions.expiresIn) {
+    delete jwtOptions.expiresIn;
+  }
+
+  return jwt.sign(payload, secretKey, jwtOptions);
+};
+
+export const decodeToken = (token) => {
+  const secretKey = process.env.JWT_SECRET;
+  return jwt.verify(token, secretKey);
+};
+
+export const consumeUser = async (ctx, next) => {
+  //TODO: access_token, refresh_token 분리
   const token = ctx.cookies.get('access_token');
   if (!token) return next();
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = decodeToken(token);
 
     ctx.state.auth = {
       user: decoded._id,
@@ -29,5 +50,3 @@ const jwtMiddleware = async (ctx, next) => {
     return next();
   }
 };
-
-export default jwtMiddleware;
