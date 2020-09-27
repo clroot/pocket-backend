@@ -1,5 +1,6 @@
 import Joi from '@hapi/joi';
 import User from '../../models/user';
+import { setTokenCookie } from '../../lib/token';
 
 export const register = async (ctx) => {
   const schema = Joi.object().keys({
@@ -62,10 +63,7 @@ export const login = async (ctx) => {
     ctx.body = user.serialize();
 
     const token = user.generateToken();
-    ctx.cookies.set('access_token', token, {
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-      httpOnly: true,
-    });
+    setTokenCookie(ctx, token);
   } catch (error) {
     ctx.throw(500, error);
   }

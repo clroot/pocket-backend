@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
 
-export const generateToken = (payload, options = {}) => {
+export const generateToken = (payload, options = { expiresIn: '7d' }) => {
   const jwtOptions = {
     issuer: 'pocket.clroot.io',
     expiresIn: '7d',
@@ -9,16 +9,20 @@ export const generateToken = (payload, options = {}) => {
   };
   const secretKey = process.env.JWT_SECRET;
 
-  if (!jwtOptions.expiresIn) {
-    delete jwtOptions.expiresIn;
-  }
-
   return jwt.sign(payload, secretKey, jwtOptions);
 };
 
 export const decodeToken = (token) => {
   const secretKey = process.env.JWT_SECRET;
   return jwt.verify(token, secretKey);
+};
+
+export const setTokenCookie = (
+  ctx,
+  token,
+  options = { maxAge: 1000 * 60 * 60 * 24 * 7, httpOnly: true },
+) => {
+  ctx.cookies.set('access_token', token, options);
 };
 
 export const consumeUser = async (ctx, next) => {
@@ -40,10 +44,7 @@ export const consumeUser = async (ctx, next) => {
       const user = await User.findById(decoded._id);
       const token = user.generateToken();
 
-      ctx.cookies.set('access_token', token, {
-        maxAge: 1000 * 60 * 60 * 24 * 7,
-        httpOnly: true,
-      });
+      setTokenCookie(ctx, token);
     }
     return next();
   } catch (error) {
