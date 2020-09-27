@@ -12,7 +12,7 @@ export const getArticleById = async (ctx, next) => {
   }
 
   try {
-    const article = await Article.findById(id);
+    const article = await Article.findById(id).populate('tags', 'name').exec();
     if (!article) {
       ctx.status = 404;
       return;
@@ -39,6 +39,9 @@ export const checkOwnArticle = (ctx, next) => {
   return next();
 };
 
+/**
+ * POST /api/v1/article
+ */
 export const save = async (ctx) => {
   const schema = Joi.object().keys({
     url: Joi.string().required(),
@@ -63,14 +66,15 @@ export const save = async (ctx) => {
 
   try {
     await article.createMetaData();
-    await article.generateTagData();
-    await article.save();
     ctx.body = article;
   } catch (error) {
     ctx.throw(500, error);
   }
 };
 
+/**
+ * /api/v1/article
+ */
 export const list = async (ctx) => {
   const page = parseInt(ctx.query.page || '1', 10);
   if (page < 1) {
@@ -92,6 +96,7 @@ export const list = async (ctx) => {
       .limit(10)
       .skip((page - 1) * 10)
       .lean()
+      .populate('tags', 'name')
       .exec();
 
     const articlesCount = await Article.countDocuments().exec();
@@ -103,10 +108,16 @@ export const list = async (ctx) => {
   }
 };
 
+/**
+ * /api/v1/article/:id
+ */
 export const read = async (ctx) => {
   ctx.body = ctx.state.article;
 };
 
+/**
+ * DELETE /api/v1/article/:id
+ */
 export const remove = async (ctx) => {
   const { id } = ctx.params;
   try {
@@ -118,6 +129,9 @@ export const remove = async (ctx) => {
   }
 };
 
+/**
+ * PATCH /api/v1/article/:id
+ */
 export const update = async (ctx) => {
   const schema = Joi.object().keys({
     tags: Joi.array().items(Joi.string()),
@@ -131,18 +145,16 @@ export const update = async (ctx) => {
   }
 
   const { id } = ctx.params;
+  let { tags } = ctx.request.body;
   try {
-    const article = await Article.findByIdAndUpdate(id, ctx.request.body, {
-      new: true,
-    }).exec();
-    await article.createMetaData();
-    await article.generateTagData();
+    const article = await Article.findById(id);
     if (!article) {
       ctx.status = 404;
       return;
     }
+    await article.updateTagData(tags);
 
-    ctx.body = article;
+    ctx.body = await article.populate('tags', 'name').execPopulate();
   } catch (error) {
     ctx.throw(500, error);
   }

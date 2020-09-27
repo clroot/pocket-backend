@@ -11,7 +11,7 @@ const ArticleSchema = new Schema({
     description: String,
     img: String,
   },
-  tags: [String],
+  tags: [{ type: mongoose.Types.ObjectId, ref: 'Tag' }],
   user: {
     type: mongoose.Types.ObjectId,
     ref: 'User',
@@ -42,20 +42,27 @@ ArticleSchema.methods.createMetaData = async function () {
     this.meta.title = title;
     this.meta.description = description;
     this.meta.img = img;
+
+    await this.save();
   } catch (error) {
     console.error(error);
     throw new Error("Can not create article's meta data");
   }
 };
 
-ArticleSchema.methods.generateTagData = async function () {
-  const userId = this.user;
-  const tags = this.tags;
-  if (tags) {
-    tags.forEach(async (name) => {
-      await Tag.findOrCreate(name, userId);
-    });
-  }
+ArticleSchema.methods.updateTagData = async function (tags) {
+  const { user } = this;
+
+  const newTags = await Promise.all(
+    Array.from(tags).map(async (tag) => {
+      const record = await Tag.findOrCreate(tag, user);
+      return record.id;
+    }),
+  );
+
+  this.tags = newTags;
+
+  await this.save();
 };
 
 const Article = mongoose.model('Article', ArticleSchema);

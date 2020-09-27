@@ -9,10 +9,11 @@ const TagSchema = new Schema({
 });
 
 TagSchema.statics.findOrCreate = async function (name, user) {
-  const tag = await this.findOne({ name, user });
+  let tag = await this.findOne({ name, user });
   if (!tag) {
-    await this.create({ name, user });
+    tag = await this.create({ name, user });
   }
+  return tag;
 };
 TagSchema.statics.findByUser = function (user) {
   return this.find({ user }).select('name -_id');

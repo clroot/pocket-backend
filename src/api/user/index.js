@@ -5,6 +5,6 @@ import * as userCtrl from './user.ctrl.js';
 
 const user = new Router();
 
-user.get('/tags', checkLoggedIn, userCtrl.getUserTagList);
+user.get('/tags', checkLoggedIn, userCtrl.userTagList);
 
 export default user;
