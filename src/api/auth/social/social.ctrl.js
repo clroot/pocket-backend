@@ -1,12 +1,74 @@
+import Joi from '@hapi/joi';
 import axios from 'axios';
 import qs from 'qs';
+import { getApiHost, getAppHost } from '../../../lib/utils';
+import { generateToken, decodeToken, setTokenCookie } from '../../../lib/token';
+import SocialAccount from '../../../models/socialAccount';
+import User from '../../../models/user';
+import { login } from '../auth.ctrl';
 
+/**
+ * POST /api/v1/auth/social/register
+ */
+export const register = async (ctx) => {
+  const registerToken = ctx.cookies.get('register_token');
+  if (!registerToken) {
+    ctx.status = 401;
+    return;
+  }
+
+  const schema = Joi.object().keys({
+    email: Joi.string().email().required(),
+    username: Joi.string().alphanum().min(3).max(20).required(),
+  });
+
+  const result = schema.validate(ctx.request.body);
+  if (result.error) {
+    ctx.status = 400;
+    ctx.body = result.error;
+  }
+
+  let decoded;
+  try {
+    decoded = decodeToken(registerToken);
+  } catch (error) {
+    console.error(error);
+    ctx.status = 401;
+    return;
+  }
+  try {
+    const { email, username } = ctx.request.body;
+    const { socialId, provider } = decoded;
+
+    const exists = await User.findByEmail(email);
+    if (exists) {
+      ctx.status = 409;
+      return;
+    }
+    const user = new User({ email, username });
+    await user.save();
+    user.id;
+
+    const account = new SocialAccount({
+      provider,
+      socialId,
+      user: user.id,
+    });
+    await account.save();
+
+    setTokenCookie(ctx, user.generateToken());
+    ctx.body = user.serialize();
+  } catch (error) {
+    console.error(error);
+    ctx.throw(500, error);
+  }
+};
+
+/**
+ * /api/v1/auth/social/login/kakao
+ */
 export const kakaoLogin = (ctx) => {
-  //TODO: host util화 시키기
-  const host =
-    process.env.NODE_ENV === 'production'
-      ? process.env.REACT_APP_API_HOST
-      : 'http://localhost:4000';
+  const host = getApiHost();
   const { KAKAO_REST_API_KEY } = process.env;
 
   const REDIRECT_URI = `${host}/api/v1/auth/social/callback/kakao`;
@@ -15,13 +77,13 @@ export const kakaoLogin = (ctx) => {
   ctx.redirect(kakaoAuthUrl);
 };
 
-export const kakaoCallback = async (ctx) => {
+/**
+ * /api/v1/auth/social/callback/kakao
+ */
+export const kakaoCallback = async (ctx, next) => {
   const { code: authorizeCode } = ctx.query;
   const { KAKAO_REST_API_KEY } = process.env;
-  const host =
-    process.env.NODE_ENV === 'production'
-      ? process.env.REACT_APP_API_HOST
-      : 'http://localhost:4000';
+  const host = getApiHost();
 
   const REDIRECT_URI = `${host}/api/v1/auth/social/callback/kakao`;
 
@@ -48,10 +110,46 @@ export const kakaoCallback = async (ctx) => {
   });
 
   const {
-    nickname: username,
-    profile_image: profile,
-  } = userResponse.data.properties;
+    id: socialId,
+    properties: { nickname: username, profile_image: profile },
+  } = userResponse.data;
 
-  //TODO:로그인 처리 or 회원가입
-  ctx.body = { username, profile };
+  ctx.state.oauth = { socialId, username, profile, provider: 'kakao' };
+  return next();
+};
+
+export const socialCallback = async (ctx) => {
+  const { socialId, provider } = ctx.state.oauth;
+  const host = getAppHost();
+
+  const account = await SocialAccount.findByOauthInfo(provider, socialId);
+  if (!account) {
+    const OAuthInfoToken = generateToken(
+      { socialId, provider },
+      { expiresIn: '30m' },
+    );
+
+    ctx.cookies.set('register_token', OAuthInfoToken, {
+      maxAge: 1000 * 60 * 30,
+      httpOnly: true,
+    });
+
+    return ctx.redirect(`${host}/social/register`);
+  }
+
+  try {
+    const user = await User.findById(account.user);
+    if (!user) {
+      ctx.status = 401;
+      return;
+    }
+
+    setTokenCookie(ctx, user.generateToken());
+
+    const { username, id } = user;
+    const buffer = Buffer.from(JSON.stringify({ username, id }));
+    ctx.redirect(`${host}/?loginToken=${buffer.toString('base64')}`);
+  } catch (error) {
+    ctx.throw(500, error);
+  }
 };

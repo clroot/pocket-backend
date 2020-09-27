@@ -1,9 +1,18 @@
 import Router from 'koa-router';
-import * as socialCtrl from './social.ctrl';
+import {
+  kakaoLogin,
+  kakaoCallback,
+  socialCallback,
+  register,
+} from './social.ctrl';
 
 const social = new Router();
 
-social.get('/login/kakao', socialCtrl.kakaoLogin);
-social.get('/callback/kakao', socialCtrl.kakaoCallback);
+/* REGISTER & LOGIN */
+social.post('/register', register);
+social.get('/login/kakao', kakaoLogin);
+
+/* Callback */
+social.get('/callback/kakao', kakaoCallback, socialCallback);
 
 export default social;
