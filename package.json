@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node -r esm src",
+    "start": "cross-env NODE_ENV=production pm2-runtime src -i -1 --node-args='-r esm'",
     "start:dev": "nodemon --watch src/ -r esm src/index.js",
     "test": "mocha $(find ./src -name '*.spec.js') --recursive --require esm"
   },
@@ -24,6 +24,7 @@
     "koa-static": "^5.0.0",
     "mongoose": "^5.9.18",
     "open-graph-scraper": "^4.1.1",
+    "pm2": "^4.4.1",
     "qs": "^6.9.4"
   },
   "devDependencies": {
