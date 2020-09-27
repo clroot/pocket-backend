@@ -1,6 +1,6 @@
 export const getApiHost = () => {
   return process.env.NODE_ENV === 'production'
-    ? process.env.REACT_APP_API_HOST
+    ? 'https://pocket.clroot.io'
     : 'http://localhost:4000';
 };
 
