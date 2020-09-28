@@ -8,6 +8,8 @@ const TagSchema = new Schema({
   },
 });
 
+TagSchema.index({ name: 'text', user: 'text' });
+
 TagSchema.statics.findOrCreate = async function ({ user, name }) {
   let tag = await this.findOne({ name, user });
   if (!tag) {
