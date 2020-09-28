@@ -55,7 +55,7 @@ ArticleSchema.methods.updateTagData = async function (tags) {
 
   const newTags = await Promise.all(
     Array.from(tags).map(async (tag) => {
-      const record = await Tag.findOrCreate(tag, user);
+      const record = await Tag.findOrCreate({ user, name: tag });
       return record.id;
     }),
   );

@@ -1,8 +1,22 @@
 import mongoose from 'mongoose';
 import Joi from '@hapi/joi';
 import Article from '../../models/article';
+import Tag from '../../models/tag';
 
 const { ObjectId } = mongoose.Types;
+
+const serializeArticle = (article) => {
+  const extractTags = (tag) => tag.name;
+  if (Array.isArray(article)) {
+    return article.map((iter) => ({
+      ...iter,
+      tags: iter.tags.map(extractTags),
+    }));
+  }
+
+  article.tags = article.tags.map(extractTags);
+  return article;
+};
 
 export const getArticleById = async (ctx, next) => {
   const { id } = ctx.params;
@@ -83,7 +97,8 @@ export const list = async (ctx) => {
   }
 
   const { user } = ctx.state.auth;
-  const { tag } = ctx.query;
+  let { tag } = ctx.query;
+  tag = tag ? await Tag.getIdByName({ user, name: tag }) : tag;
 
   const query = {
     user,
@@ -102,7 +117,7 @@ export const list = async (ctx) => {
     const articlesCount = await Article.countDocuments().exec();
 
     ctx.set('Last-Page', Math.ceil(articlesCount / 10));
-    ctx.body = articles;
+    ctx.body = serializeArticle(articles);
   } catch (error) {
     ctx.throw(500, error);
   }
@@ -147,14 +162,15 @@ export const update = async (ctx) => {
   const { id } = ctx.params;
   let { tags } = ctx.request.body;
   try {
-    const article = await Article.findById(id);
+    let article = await Article.findById(id);
     if (!article) {
       ctx.status = 404;
       return;
     }
     await article.updateTagData(tags);
 
-    ctx.body = await article.populate('tags', 'name').execPopulate();
+    article = await article.populate('tags', 'name').execPopulate();
+    ctx.body = serializeArticle(article);
   } catch (error) {
     ctx.throw(500, error);
   }

@@ -8,13 +8,19 @@ const TagSchema = new Schema({
   },
 });
 
-TagSchema.statics.findOrCreate = async function (name, user) {
+TagSchema.statics.findOrCreate = async function ({ user, name }) {
   let tag = await this.findOne({ name, user });
   if (!tag) {
     tag = await this.create({ name, user });
   }
   return tag;
 };
+
+TagSchema.statics.getIdByName = async function ({ user, name }) {
+  let tag = await this.findOne({ name, user });
+  return tag.id;
+};
+
 TagSchema.statics.findByUser = function (user) {
   return this.find({ user }).select('name -_id');
 };
