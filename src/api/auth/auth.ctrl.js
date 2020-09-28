@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import User from '../../models/user';
 import { setTokenCookie } from '../../lib/token';
 
