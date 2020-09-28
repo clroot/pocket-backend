@@ -1,11 +1,10 @@
 import Joi from '@hapi/joi';
 import axios from 'axios';
 import qs from 'qs';
-import { getApiHost, getAppHost } from '../../../lib/utils';
+import { getApiHost, getAppHost, encodeBase64 } from '../../../lib/utils';
 import { generateToken, decodeToken, setTokenCookie } from '../../../lib/token';
 import SocialAccount from '../../../models/socialAccount';
 import User from '../../../models/user';
-import { login } from '../auth.ctrl';
 
 /**
  * POST /api/v1/auth/social/register
@@ -147,8 +146,9 @@ export const socialCallback = async (ctx) => {
     setTokenCookie(ctx, user.generateToken());
 
     const { username, id } = user;
-    const buffer = Buffer.from(JSON.stringify({ username, id }));
-    ctx.redirect(`${host}/?loginToken=${buffer.toString('base64')}`);
+    ctx.redirect(
+      `${host}/?loginToken=${encodeBase64(JSON.stringify({ username, id }))}`,
+    );
   } catch (error) {
     ctx.throw(500, error);
   }
