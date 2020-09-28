@@ -5,7 +5,7 @@ import { setTokenCookie } from '../../lib/token';
 export const register = async (ctx) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
-    username: Joi.string().alphanum().min(3).max(20).required(),
+    username: Joi.string().min(2).max(20).required(),
     password: Joi.string().required(),
   });
 

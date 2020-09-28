@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import Joi from 'joi';
 import axios from 'axios';
 import qs from 'qs';
 import { getApiHost, getAppHost, encodeBase64 } from '../../../lib/utils';
@@ -18,13 +18,14 @@ export const register = async (ctx) => {
 
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
-    username: Joi.string().alphanum().min(3).max(20).required(),
+    username: Joi.string().min(2).max(20).required(),
   });
 
   const result = schema.validate(ctx.request.body);
   if (result.error) {
     ctx.status = 400;
     ctx.body = result.error;
+    return;
   }
 
   let decoded;
@@ -118,7 +119,7 @@ export const kakaoCallback = async (ctx, next) => {
 };
 
 export const socialCallback = async (ctx) => {
-  const { socialId, provider } = ctx.state.oauth;
+  const { socialId, provider, username } = ctx.state.oauth;
   const host = getAppHost();
 
   const account = await SocialAccount.findByOauthInfo(provider, socialId);
@@ -133,7 +134,11 @@ export const socialCallback = async (ctx) => {
       httpOnly: true,
     });
 
-    return ctx.redirect(`${host}/social/register`);
+    return ctx.redirect(
+      `${host}/social/register?info=${encodeBase64(
+        JSON.stringify({ username }),
+      )}`,
+    );
   }
 
   try {
