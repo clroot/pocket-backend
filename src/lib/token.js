@@ -7,7 +7,7 @@ export const generateToken = (payload, options = { expiresIn: '7d' }) => {
     expiresIn: '7d',
     ...options,
   };
-  const secretKey = process.env.JWT_SECRET;
+  const secretKey = process.env.JWT_SECRET || 'JWT_SECRET';
 
   return jwt.sign(payload, secretKey, jwtOptions);
 };
