@@ -4,7 +4,6 @@ import httpStatus from 'http-status';
 
 import app from '../../main';
 
-console.log2 = console.log;
 console.log = () => {};
 describe('Authentication API', () => {
   const prefix = '/api/v1/auth';
