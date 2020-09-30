@@ -26,7 +26,6 @@ app.use(consumeUser);
 app.use(router.routes()).use(router.allowedMethods());
 
 const buildDirectory = path.resolve(__dirname, '../../frontend/build');
-console.log(buildDirectory);
 app.use(serve(buildDirectory));
 app.use(async (ctx) => {
   if (ctx.status === 404 && ctx.path.indexOf('/api') !== 0) {

@@ -1,19 +1,19 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
 
+const secretKey = process.env.JWT_SECRET || 'JWT_SECRET';
+
 export const generateToken = (payload, options = { expiresIn: '7d' }) => {
   const jwtOptions = {
     issuer: 'pocket.clroot.io',
     expiresIn: '7d',
     ...options,
   };
-  const secretKey = process.env.JWT_SECRET || 'JWT_SECRET';
 
   return jwt.sign(payload, secretKey, jwtOptions);
 };
 
 export const decodeToken = (token) => {
-  const secretKey = process.env.JWT_SECRET;
   return jwt.verify(token, secretKey);
 };
 
