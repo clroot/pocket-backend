@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import httpStatus from 'http-status';
 import axios from 'axios';
 import qs from 'qs';
 import { getApiHost, getAppHost, encodeBase64 } from '../../../lib/utils';
@@ -12,7 +13,7 @@ import User from '../../../models/user';
 export const register = async (ctx) => {
   const registerToken = ctx.cookies.get('register_token');
   if (!registerToken) {
-    ctx.status = 401;
+    ctx.status = httpStatus.UNAUTHORIZED;
     return;
   }
 
@@ -23,7 +24,7 @@ export const register = async (ctx) => {
 
   const result = schema.validate(ctx.request.body);
   if (result.error) {
-    ctx.status = 400;
+    ctx.status = httpStatus.BAD_REQUEST;
     ctx.body = result.error;
     return;
   }
@@ -33,7 +34,7 @@ export const register = async (ctx) => {
     decoded = decodeToken(registerToken);
   } catch (error) {
     console.error(error);
-    ctx.status = 401;
+    ctx.status = httpStatus.UNAUTHORIZED;
     return;
   }
   try {
@@ -42,7 +43,7 @@ export const register = async (ctx) => {
 
     const exists = await User.findByEmail(email);
     if (exists) {
-      ctx.status = 409;
+      ctx.status = httpStatus.CONFLICT;
       return;
     }
     const user = new User({ email, username });
@@ -60,7 +61,7 @@ export const register = async (ctx) => {
     ctx.body = user.serialize();
   } catch (error) {
     console.error(error);
-    ctx.throw(500, error);
+    ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
 };
 
@@ -144,7 +145,7 @@ export const socialCallback = async (ctx) => {
   try {
     const user = await User.findById(account.user);
     if (!user) {
-      ctx.status = 401;
+      ctx.status = httpStatus.UNAUTHORIZED;
       return;
     }
 
@@ -155,6 +156,6 @@ export const socialCallback = async (ctx) => {
       `${host}/?loginToken=${encodeBase64(JSON.stringify({ username, id }))}`,
     );
   } catch (error) {
-    ctx.throw(500, error);
+    ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
 };

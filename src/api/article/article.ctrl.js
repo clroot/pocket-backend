@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Joi from 'joi';
+import httpStatus from 'http-status';
 import Article from '../../models/article';
 import Tag from '../../models/tag';
 
@@ -21,21 +22,21 @@ const serializeArticle = (article) => {
 export const getArticleById = async (ctx, next) => {
   const { id } = ctx.params;
   if (!ObjectId.isValid(id)) {
-    ctx.status = 400;
+    ctx.status = httpStatus.BAD_REQUEST;
     return;
   }
 
   try {
     const article = await Article.findById(id).populate('tags', 'name').exec();
     if (!article) {
-      ctx.status = 404;
+      ctx.status = httpStatus.NOT_FOUND;
       return;
     }
 
     ctx.state.article = article;
     return next();
   } catch (error) {
-    ctx.throw(500, error);
+    ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
 };
 
@@ -46,7 +47,7 @@ export const checkOwnArticle = (ctx, next) => {
   } = ctx.state;
 
   if (article.user.toString() !== user) {
-    ctx.status = 403;
+    ctx.status = httpStatus.FORBIDDEN;
     return;
   }
 
@@ -64,7 +65,7 @@ export const save = async (ctx) => {
 
   const result = schema.validate(ctx.request.body);
   if (result.error) {
-    ctx.status = 400;
+    ctx.status = httpStatus.BAD_REQUEST;
     ctx.body = result.error;
     return;
   }
@@ -82,7 +83,7 @@ export const save = async (ctx) => {
     await article.createMetaData();
     ctx.body = article;
   } catch (error) {
-    ctx.throw(500, error);
+    ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
 };
 
@@ -92,7 +93,7 @@ export const save = async (ctx) => {
 export const list = async (ctx) => {
   const page = parseInt(ctx.query.page || '1', 10);
   if (page < 1) {
-    ctx.status = 400;
+    ctx.status = httpStatus.BAD_REQUEST;
     return;
   }
 
@@ -119,7 +120,7 @@ export const list = async (ctx) => {
     ctx.set('Last-Page', Math.ceil(articlesCount / 10));
     ctx.body = serializeArticle(articles);
   } catch (error) {
-    ctx.throw(500, error);
+    ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
 };
 
@@ -137,10 +138,10 @@ export const remove = async (ctx) => {
   const { id } = ctx.params;
   try {
     await Article.findByIdAndRemove(id).exec();
-    ctx.status = 204;
+    ctx.status = httpStatus.NO_CONTENT;
     ctx.set('Removed-Article', id);
   } catch (error) {
-    ctx.throw(500, error);
+    ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
 };
 
@@ -154,7 +155,7 @@ export const update = async (ctx) => {
 
   const result = schema.validate(ctx.request.body);
   if (result.error) {
-    ctx.status = 400;
+    ctx.status = httpStatus.BAD_REQUEST;
     ctx.body = result.error;
     return;
   }
@@ -164,7 +165,7 @@ export const update = async (ctx) => {
   try {
     let article = await Article.findById(id);
     if (!article) {
-      ctx.status = 404;
+      ctx.status = httpStatus.NOT_FOUND;
       return;
     }
     await article.updateTagData(tags);
@@ -172,6 +173,6 @@ export const update = async (ctx) => {
     article = await article.populate('tags', 'name').execPopulate();
     ctx.body = serializeArticle(article);
   } catch (error) {
-    ctx.throw(500, error);
+    ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
 };

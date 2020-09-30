@@ -1,7 +1,11 @@
 import Joi from 'joi';
+import httpStatus from 'http-status';
 import User from '../../models/user';
 import { setTokenCookie } from '../../lib/token';
 
+/**
+ * POST /api/v1/auth/register
+ */
 export const register = async (ctx) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
@@ -11,7 +15,7 @@ export const register = async (ctx) => {
 
   const result = schema.validate(ctx.request.body);
   if (result.error) {
-    ctx.status = 400;
+    ctx.status = httpStatus.BAD_REQUEST;
     ctx.body = result.error;
     return;
   }
@@ -21,7 +25,7 @@ export const register = async (ctx) => {
   try {
     const exists = await User.findByEmail(email);
     if (exists) {
-      ctx.status = 409;
+      ctx.status = httpStatus.CONFLICT;
       return;
     }
 
@@ -29,6 +33,7 @@ export const register = async (ctx) => {
     await user.setPassword(password);
     await user.save();
 
+    ctx.status = httpStatus.CREATED;
     ctx.body = user.serialize();
 
     const token = user.generateToken();
@@ -37,26 +42,30 @@ export const register = async (ctx) => {
       httpOnly: true,
     });
   } catch (error) {
-    ctx.throw(500, error);
+    ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
 };
+
+/**
+ * POST /api/v1/auth/login
+ */
 export const login = async (ctx) => {
   const { email, password } = ctx.request.body;
   if (!email || !password) {
-    ctx.status = 401;
+    ctx.status = httpStatus.UNAUTHORIZED;
     return;
   }
 
   try {
     const user = await User.findByEmail(email);
     if (!user) {
-      ctx.status = 401;
+      ctx.status = httpStatus.UNAUTHORIZED;
       return;
     }
 
     const valid = await user.checkPassword(password);
     if (!valid) {
-      ctx.status = 401;
+      ctx.status = httpStatus.UNAUTHORIZED;
       return;
     }
 
@@ -65,19 +74,27 @@ export const login = async (ctx) => {
     const token = user.generateToken();
     setTokenCookie(ctx, token);
   } catch (error) {
-    ctx.throw(500, error);
+    ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
 };
+
+/**
+ * /api/v1/auth/login
+ */
 export const check = async (ctx) => {
   const { auth } = ctx.state;
   if (!auth) {
-    ctx.status = 401;
+    ctx.status = httpStatus.UNAUTHORIZED;
     return;
   }
 
   ctx.body = auth;
 };
+
+/**
+ * POST /api/v1/auth/logout
+ */
 export const logout = async (ctx) => {
   ctx.cookies.set('access_token');
-  ctx.status = 204;
+  ctx.status = httpStatus.NO_CONTENT;
 };
