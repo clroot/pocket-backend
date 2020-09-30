@@ -3,28 +3,21 @@ import Koa from 'koa';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
 import logger from 'koa-logger';
-import mongoose from 'mongoose';
 import serve from 'koa-static';
 import path from 'path';
 import send from 'koa-send';
 
+import Database from './database';
 import api from './api';
 import { consumeUser } from './lib/token';
 
-const { PORT, MONGO_URI } = process.env;
+const { PORT } = process.env;
 
-mongoose
-  .connect(MONGO_URI, { useNewUrlParser: true, useFindAndModify: false })
-  .then(() => {
-    console.log('Connected to MongoDB...');
-  })
-  .catch((error) => {
-    console.error(error);
-  });
-
+const database = new Database();
 const app = new Koa();
 const router = new Router();
 
+database.connect();
 router.use('/api/v1', api.routes());
 
 app.use(logger());
