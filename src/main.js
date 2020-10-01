@@ -13,11 +13,10 @@ import { consumeUser } from './lib/token';
 
 const { PORT } = process.env;
 
-const database = new Database();
 const app = new Koa();
 const router = new Router();
 
-database.connect();
+Database.getInstance().connect();
 router.use('/api/v1', api.routes());
 
 app.use(logger());
@@ -33,11 +32,15 @@ app.use(async (ctx) => {
   }
 });
 
-export const startServer = () => {
-  const port = PORT || 4000;
-  app.listen(port, () => {
+export const startServer = (port = PORT || 4000) => {
+  return app.listen(port, () => {
     console.log(`Listening to port ${port}...`);
   });
+};
+
+export const closeServer = async (server) => {
+  server.close();
+  await Database.getInstance().closeConnect();
 };
 
 export default app;
