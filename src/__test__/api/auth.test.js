@@ -1,10 +1,8 @@
 import request from 'supertest';
 import { expect } from 'chai';
 import httpStatus from 'http-status';
+import { startServer, closeServer } from '../../main';
 
-import app from '../../main';
-
-console.log = () => {};
 describe('Authentication API', () => {
   const prefix = '/api/v1/auth';
   let server;
@@ -16,11 +14,11 @@ describe('Authentication API', () => {
       username: 'clroot',
       password: 'password',
     };
-    server = app.listen(4002, () => {});
+    server = startServer(4001);
   });
 
   afterAll(async () => {
-    server.close();
+    await closeServer(server);
   });
 
   describe('POST /api/v1/auth/register', () => {
