@@ -16,7 +16,7 @@ const { PORT } = process.env;
 const app = new Koa();
 const router = new Router();
 
-Database.getInstance().connect();
+Database.connect();
 router.use('/api/v1', api.routes());
 
 app.use(logger());
@@ -40,7 +40,7 @@ export const startServer = (port = PORT || 4000) => {
 
 export const closeServer = async (server) => {
   server.close();
-  await Database.getInstance().closeConnect();
+  await Database.closeConnect();
 };
 
 export default app;
