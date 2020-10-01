@@ -52,14 +52,14 @@ export const register = async (ctx) => {
 export const login = async (ctx) => {
   const { email, password } = ctx.request.body;
   if (!email || !password) {
-    ctx.status = httpStatus.UNAUTHORIZED;
+    ctx.status = httpStatus.BAD_REQUEST;
     return;
   }
 
   try {
     const user = await User.findByEmail(email);
     if (!user) {
-      ctx.status = httpStatus.UNAUTHORIZED;
+      ctx.status = httpStatus.NOT_FOUND;
       return;
     }
 
@@ -79,7 +79,7 @@ export const login = async (ctx) => {
 };
 
 /**
- * /api/v1/auth/login
+ * /api/v1/auth/check
  */
 export const check = async (ctx) => {
   const { auth } = ctx.state;
