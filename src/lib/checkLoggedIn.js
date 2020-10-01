@@ -1,6 +1,7 @@
+import httpStatus from 'http-status';
 const checkLoggedIn = (ctx, next) => {
   if (!ctx.state.auth) {
-    ctx.status = 401;
+    ctx.status = httpStatus.UNAUTHORIZED;
     return;
   }
   return next();
