@@ -19,7 +19,7 @@ before_deploy:
   - mv before-deploy/before-deploy.zip deploy/pocket-backend.zip
 deploy:
   - provider: s3
-    cleanup: false
+    skip_cleanup: true
     access_key_id: $AWS_ACCESS_KEY
     secret_access_key: $AWS_SECRET_KEY
     bucket: clroot-pocket-backend-deploy
