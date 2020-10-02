@@ -18,17 +18,27 @@ describe('Social Authentication API', () => {
     await closeServer(server);
   });
 
-  describe('Kakao OAuth 인증', () => {
+  describe(`POST ${prefix}/register 는`, () => {
+    //TODO: 테스트 구현
+  });
+
+  describe(`GET ${prefix}/login/kakao 는`, () => {
     const url = `${prefix}/login/kakao`;
-    it('카카오 로그인 요청시, 카카오로 redirect', () => {
-      return request(server)
-        .get(url)
-        .expect(httpStatus.FOUND)
-        .then((res) => {
-          expect(res.header.location).to.startWith(
-            'https://kauth.kakao.com/oauth/authorize?response_type=code&',
-          );
-        });
+    describe('성공시 ', () => {
+      it('카카오 인증페이지로 REDIRECT한다.', (done) =>
+        request(server)
+          .get(url)
+          .expect(httpStatus.FOUND)
+          .then((res) => {
+            expect(res.headers.location).to.be.startsWith(
+              'https://kauth.kakao.com',
+            );
+            done();
+          }));
     });
+  });
+
+  describe(`GET ${prefix}/callback/kakao 는`, () => {
+    //TODO: 테스트 구현
   });
 });
