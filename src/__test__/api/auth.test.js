@@ -3,7 +3,7 @@ import chai, { assert, expect } from 'chai';
 import chaiString from 'chai-string';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
-import User from '../../models/user';
+import { createUser, cleanUpUser, getAccessToken } from './api-helper';
 
 chai.use(chaiString);
 
@@ -30,7 +30,7 @@ describe('Authentication API', () => {
   describe(`POST ${prefix}/register는 `, () => {
     const url = `${prefix}/register`;
     afterAll((done) => {
-      User.deleteMany({}).exec(done);
+      cleanUpUser(done);
     });
 
     describe('성공시 ', () => {
@@ -62,18 +62,14 @@ describe('Authentication API', () => {
     });
   });
 
-  describe(`POST ${prefix}/login는 `, () => {
+  describe.only(`POST ${prefix}/login는 `, () => {
     const url = `${prefix}/login`;
-    beforeAll(async (done) => {
-      const { email, username, password } = user;
-      const record = new User({ email, username });
-      await record.setPassword(password);
-      await record.save();
-      done();
+    beforeAll((done) => {
+      createUser(user, done);
     });
 
     afterAll((done) => {
-      User.deleteMany({}).exec().then(done);
+      cleanUpUser(done);
     });
 
     describe('성공시 ', () => {
@@ -113,35 +109,23 @@ describe('Authentication API', () => {
 
   describe(`GET ${prefix}/check는`, () => {
     const url = `${prefix}/check`;
-    let accessTokenCookie;
+    let accessToken;
 
     beforeAll(async (done) => {
-      const { email, username, password } = user;
-      const record = new User({ email, username });
-      await record.setPassword(password);
-      await record.save();
+      await createUser(user);
+      accessToken = await getAccessToken(server, user);
       done();
     });
 
-    beforeAll((done) => {
-      request(server)
-        .post(`${prefix}/login`)
-        .send(user)
-        .then((res) => {
-          accessTokenCookie = res.headers['set-cookie'];
-          done();
-        });
-    });
-
     afterAll((done) => {
-      User.deleteMany({}).exec().then(done);
+      cleanUpUser(done);
     });
 
     describe('성공시 ', () => {
       it('user 객체를 return한다. ', (done) =>
         request(server)
           .get(url)
-          .set('Cookie', accessTokenCookie)
+          .set('Cookie', accessToken)
           .expect(httpStatus.OK)
           .then((res) => {
             const { username, user: userId } = res.body;

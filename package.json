@@ -7,6 +7,7 @@
     "start": "cross-env NODE_ENV=production pm2-runtime src -i -1 --node-args='-r esm'",
     "start:dev": "cross-env NODE_ENV=development nodemon --watch src/ --trace-deprecation -r esm src/index.js",
     "test": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit --runInBand --silent",
+    "test:log": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit --runInBand",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
