@@ -3,7 +3,7 @@ import chai, { assert, expect } from 'chai';
 import chaiString from 'chai-string';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
-import { createUser, cleanUpUser, getAccessToken } from './api-helper';
+import { registerUser, getAccessToken, cleanUpUser } from './api-helper';
 
 chai.use(chaiString);
 
@@ -11,8 +11,8 @@ describe('Authentication API', () => {
   const prefix = '/api/v1/auth';
   let server;
 
-  const user = {
-    email: 'clroot@kakao.com',
+  const testUserInfo = {
+    email: 'pocket@clroot.io',
     username: 'clroot',
     password: 'password',
   };
@@ -37,11 +37,11 @@ describe('Authentication API', () => {
       it('user 객체를 return한다. ', (done) =>
         request(server)
           .post(url)
-          .send(user)
+          .send(testUserInfo)
           .expect(httpStatus.CREATED)
           .then((res) => {
             const { username, _id } = res.body;
-            assert.equal(username, user.username);
+            assert.equal(username, testUserInfo.username);
             assert.isString(_id);
             done();
           }));
@@ -50,7 +50,7 @@ describe('Authentication API', () => {
       it('email이 중복되면 409 CONFLICT', (done) =>
         request(server)
           .post(url)
-          .send(user)
+          .send(testUserInfo)
           .expect(httpStatus.CONFLICT)
           .end(done));
       it('field가 충족되지 않으면, 400 BAD_REQUEST', (done) =>
@@ -65,7 +65,7 @@ describe('Authentication API', () => {
   describe.only(`POST ${prefix}/login는 `, () => {
     const url = `${prefix}/login`;
     beforeAll((done) => {
-      createUser(user, done);
+      registerUser(testUserInfo, done);
     });
 
     afterAll((done) => {
@@ -76,11 +76,11 @@ describe('Authentication API', () => {
       it('user 객체를 return한다.', (done) =>
         request(server)
           .post(url)
-          .send(user)
+          .send(testUserInfo)
           .expect(httpStatus.OK)
           .then((res) => {
             const { username, _id } = res.body;
-            assert.equal(username, user.username);
+            assert.equal(username, testUserInfo.username);
             assert.isString(_id);
             done();
           }));
@@ -89,13 +89,13 @@ describe('Authentication API', () => {
       it('email이 존재하지 않으면, 404 NOT_FOUND', (done) =>
         request(server)
           .post(url)
-          .send({ ...user, email: 'no-user@clroot.io' })
+          .send({ ...testUserInfo, email: 'no-user@clroot.io' })
           .expect(httpStatus.NOT_FOUND)
           .end(done));
       it('password가 일치하지 않으면, 401 UNAUTHORIZED', (done) =>
         request(server)
           .post(url)
-          .send({ ...user, password: 'wrong-password' })
+          .send({ ...testUserInfo, password: 'wrong-password' })
           .expect(httpStatus.UNAUTHORIZED)
           .end(done));
       it('field가 충족되지 않으면, 400 BAD_REQUEST', (done) =>
@@ -112,8 +112,8 @@ describe('Authentication API', () => {
     let accessToken;
 
     beforeAll(async (done) => {
-      await createUser(user);
-      accessToken = await getAccessToken(server, user);
+      await registerUser(testUserInfo);
+      accessToken = await getAccessToken(server, testUserInfo);
       done();
     });
 
@@ -130,7 +130,7 @@ describe('Authentication API', () => {
           .then((res) => {
             const { username, user: userId } = res.body;
             assert.isString(userId);
-            assert.equal(username, user.username);
+            assert.equal(username, testUserInfo.username);
             done();
           }));
     });
