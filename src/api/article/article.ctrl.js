@@ -81,6 +81,7 @@ export const save = async (ctx) => {
 
   try {
     await article.createMetaData();
+    ctx.status = httpStatus.CREATED;
     ctx.body = article;
   } catch (error) {
     ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
@@ -88,7 +89,7 @@ export const save = async (ctx) => {
 };
 
 /**
- * /api/v1/article
+ * /api/v1/articles
  */
 export const list = async (ctx) => {
   const page = parseInt(ctx.query.page || '1', 10);
