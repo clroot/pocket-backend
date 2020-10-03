@@ -17,8 +17,8 @@ describe('Authentication API', () => {
     password: 'password',
   };
 
-  beforeAll((done) => {
-    server = startServer(4001);
+  beforeAll(async (done) => {
+    server = await startServer();
     done();
   });
 

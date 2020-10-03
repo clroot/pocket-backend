@@ -6,6 +6,7 @@ import logger from 'koa-logger';
 import serve from 'koa-static';
 import path from 'path';
 import send from 'koa-send';
+import getPort from 'get-port';
 
 import Database from './database';
 import api from './api';
@@ -32,10 +33,19 @@ app.use(async (ctx) => {
   }
 });
 
-export const startServer = (port = PORT || 4000) => {
-  return app.listen(port, () => {
+export const startServer = async (
+  port = PORT || 4000,
+  callback = undefined,
+) => {
+  if (process.env.NODE_ENV === 'test' && port === 4000) {
+    port = await getPort();
+  }
+
+  const server = await app.listen(port, () => {
     console.log(`Listening to port ${port}...`);
   });
+
+  return callback ? callback(server) : Promise.resolve(server);
 };
 
 export const closeServer = async (server) => {

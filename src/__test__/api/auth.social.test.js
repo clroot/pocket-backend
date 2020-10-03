@@ -11,7 +11,7 @@ describe('Social Authentication API', () => {
   let server;
 
   beforeAll(async () => {
-    server = startServer(4001);
+    server = await startServer();
   });
 
   afterAll(async () => {

@@ -23,16 +23,16 @@ describe('Article API', () => {
   let accessTokenCookie;
 
   beforeAll(async (done) => {
-    server = startServer(4001);
+    server = await startServer();
     await registerUser();
     accessTokenCookie = await getAccessTokenCookie(server);
     done();
   });
 
   afterAll(async (done) => {
-    await closeServer(server);
     await cleanUpArticle();
     await cleanUpUser();
+    await closeServer(server);
     done();
   });
 
