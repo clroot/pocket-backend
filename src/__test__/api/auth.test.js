@@ -3,7 +3,7 @@ import chai, { assert, expect } from 'chai';
 import chaiString from 'chai-string';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
-import { registerUser, getAccessToken, cleanUpUser } from './api-helper';
+import { registerUser, getAccessTokenCookie, cleanUpUser } from './api-helper';
 
 chai.use(chaiString);
 
@@ -113,7 +113,7 @@ describe('Authentication API', () => {
 
     beforeAll(async (done) => {
       await registerUser(testUserInfo);
-      accessToken = await getAccessToken(server, testUserInfo);
+      accessToken = await getAccessTokenCookie(server, testUserInfo);
       done();
     });
 

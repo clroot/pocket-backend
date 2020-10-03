@@ -32,7 +32,7 @@ export const removeUser = async (
   return callback ? callback() : Promise.resolve();
 };
 
-export const getAccessToken = async (
+export const getAccessTokenCookie = async (
   server,
   user = { ...testUserInfo },
   callback = undefined,

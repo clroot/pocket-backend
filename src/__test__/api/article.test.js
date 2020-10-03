@@ -6,7 +6,7 @@ import { startServer, closeServer } from '../../main';
 import {
   registerUser,
   removeUser,
-  getAccessToken,
+  getAccessTokenCookie,
   cleanUpUser,
   cleanUpArticle,
   saveArticle,
@@ -20,12 +20,12 @@ describe('Article API', () => {
     tags: [],
   };
   let server;
-  let accessToken;
+  let accessTokenCookie;
 
   beforeAll(async (done) => {
     server = startServer(4001);
     await registerUser();
-    accessToken = await getAccessToken(server);
+    accessTokenCookie = await getAccessTokenCookie(server);
     done();
   });
 
@@ -43,7 +43,7 @@ describe('Article API', () => {
       it('article 배열을 return한다. ', (done) =>
         request(server)
           .get(url)
-          .set('Cookie', accessToken)
+          .set('Cookie', accessTokenCookie)
           .expect(httpStatus.OK)
           .then((res) => {
             //TODO: res 검증
@@ -56,7 +56,7 @@ describe('Article API', () => {
       it('page가 0보다 작으면, 400 BAD_REQUEST', (done) =>
         request(server)
           .get(`${url}?page=-1`)
-          .set('Cookie', accessToken)
+          .set('Cookie', accessTokenCookie)
           .expect(httpStatus.BAD_REQUEST)
           .end(done));
     });
@@ -74,7 +74,7 @@ describe('Article API', () => {
         request(server)
           .post(url)
           .send(sampleArticle)
-          .set('Cookie', accessToken)
+          .set('Cookie', accessTokenCookie)
           .expect(httpStatus.CREATED)
           .then((res) => {
             //TODO: [article] 검증
@@ -92,7 +92,7 @@ describe('Article API', () => {
         request(server)
           .post(url)
           .send({})
-          .set('Cookie', accessToken)
+          .set('Cookie', accessTokenCookie)
           .expect(httpStatus.BAD_REQUEST)
           .end(done));
     });
@@ -102,7 +102,7 @@ describe('Article API', () => {
     let id;
 
     beforeAll(async (done) => {
-      const { _id } = await saveArticle(server, accessToken);
+      const { _id } = await saveArticle(server, accessTokenCookie);
       id = _id;
       done();
     });
@@ -114,7 +114,7 @@ describe('Article API', () => {
       it('id의 article 객체를 return한다.', (done) =>
         request(server)
           .get(`${prefix}/${id}`)
-          .set('Cookie', accessToken)
+          .set('Cookie', accessTokenCookie)
           .expect(httpStatus.OK)
           .then((res) => {
             //TODO: 검증
@@ -125,7 +125,7 @@ describe('Article API', () => {
       it('해당 id의 article이 존재하지 않으면, 404 NOT_FOUND', (done) =>
         request(server)
           .get(`${prefix}/${generateObjectId()}`)
-          .set('Cookie', accessToken)
+          .set('Cookie', accessTokenCookie)
           .expect(httpStatus.NOT_FOUND)
           .end(done));
     });
@@ -134,7 +134,7 @@ describe('Article API', () => {
   describe(`DELETE ${prefix}/:id는 `, () => {
     let id;
     beforeEach(async (done) => {
-      const { _id } = await saveArticle(server, accessToken);
+      const { _id } = await saveArticle(server, accessTokenCookie);
       id = _id;
       done();
     });
@@ -146,7 +146,7 @@ describe('Article API', () => {
       it('해당 article을 삭제한다.', (done) =>
         request(server)
           .delete(`${prefix}/${id}`)
-          .set('Cookie', accessToken)
+          .set('Cookie', accessTokenCookie)
           .expect(httpStatus.NO_CONTENT)
           .end(done));
     });
@@ -160,7 +160,7 @@ describe('Article API', () => {
 
       beforeAll(async (done) => {
         await registerUser(anotherUser);
-        anotherAccessToken = await getAccessToken(server, anotherUser);
+        anotherAccessToken = await getAccessTokenCookie(server, anotherUser);
         done();
       });
       afterAll(async (done) => {
@@ -177,7 +177,7 @@ describe('Article API', () => {
       it('해당 id의 article이 존재하지 않으면, 404 NOT_FOUND', (done) =>
         request(server)
           .delete(`${prefix}/${generateObjectId()}`)
-          .set('Cookie', accessToken)
+          .set('Cookie', accessTokenCookie)
           .expect(httpStatus.NOT_FOUND)
           .end(done));
     });
@@ -190,7 +190,7 @@ describe('Article API', () => {
     let id;
 
     beforeAll(async (done) => {
-      const { _id } = await saveArticle(server, accessToken);
+      const { _id } = await saveArticle(server, accessTokenCookie);
       id = _id;
       done();
     });
@@ -204,7 +204,7 @@ describe('Article API', () => {
         request(server)
           .patch(`${prefix}/${id}`)
           .send(updateArticle)
-          .set('Cookie', accessToken)
+          .set('Cookie', accessTokenCookie)
           .expect(httpStatus.OK)
           .then((res) => {
             //TODO: 검증
@@ -221,7 +221,7 @@ describe('Article API', () => {
 
       beforeAll(async (done) => {
         await registerUser(anotherUser);
-        anotherAccessToken = await getAccessToken(server, anotherUser);
+        anotherAccessToken = await getAccessTokenCookie(server, anotherUser);
         done();
       });
       afterAll(async (done) => {
@@ -240,7 +240,7 @@ describe('Article API', () => {
         request(server)
           .patch(`${prefix}/${generateObjectId()}`)
           .send(updateArticle)
-          .set('Cookie', accessToken)
+          .set('Cookie', accessTokenCookie)
           .expect(httpStatus.NOT_FOUND)
           .end(done));
     });
