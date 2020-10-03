@@ -11,10 +11,10 @@ const testUserInfo = {
 };
 
 export const registerUser = async (
-  user = { ...testUserInfo },
+  payload = { ...testUserInfo },
   callback = undefined,
 ) => {
-  const { email, username, password } = user;
+  const { email, username, password } = payload;
   const record = new User({ email, username });
   await record.setPassword(password);
   await record.save();
@@ -23,34 +23,37 @@ export const registerUser = async (
 };
 
 export const removeUser = async (
-  user = { ...testUserInfo },
+  payload = { ...testUserInfo },
   callback = undefined,
 ) => {
-  const { email } = user;
-  await User.findOneAndRemove({ email }).exec();
+  const { email } = payload;
+  const user = await User.findByEmail(email);
+  await User.deleteOne({ _id: user.id }).exec();
 
   return callback ? callback() : Promise.resolve();
 };
 
 export const getAccessTokenCookie = async (
   server,
-  user = { ...testUserInfo },
+  payload = { ...testUserInfo },
   callback = undefined,
 ) => {
-  let accessToken;
+  let accessTokenCookie;
   try {
     await request(server)
       .post('/api/v1/auth/login')
-      .send(user)
+      .send(payload)
       .expect(httpStatus.OK)
       .then((res) => {
-        accessToken = res.headers['set-cookie'][0];
+        accessTokenCookie = res.headers['set-cookie'][0];
       });
   } catch (error) {
     console.error(error);
   }
 
-  return callback ? callback(accessToken) : Promise.resolve(accessToken);
+  return callback
+    ? callback(accessTokenCookie)
+    : Promise.resolve(accessTokenCookie);
 };
 
 /* ARTICLE */
@@ -61,16 +64,31 @@ const testArticle = {
 
 export const saveArticle = async (
   server,
-  accessToken,
-  article = { ...testArticle },
+  accessTokenCookie,
+  payload = { ...testArticle },
   callback = undefined,
 ) => {
-  const { body: articleObject } = await request(server)
+  const { body: article } = await request(server)
     .post('/api/v1/articles')
-    .send(article)
-    .set('Cookie', accessToken)
+    .send(payload)
+    .set('Cookie', accessTokenCookie)
     .expect(httpStatus.CREATED);
-  return callback ? callback(articleObject) : Promise.resolve(articleObject);
+  return callback ? callback(article) : Promise.resolve(article);
+};
+
+export const updateArticle = async (
+  server,
+  accessTokenCookie,
+  articleId,
+  payload = { tags: [] },
+  callback = undefined,
+) => {
+  const { body: article } = await request(server)
+    .patch(`/api/v1/articles/${articleId}`)
+    .send(payload)
+    .set('Cookie', accessTokenCookie)
+    .expect(httpStatus.OK);
+  return callback ? callback(article) : Promise.resolve(article);
 };
 
 /* CLEAN UP DATABASE */
