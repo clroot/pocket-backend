@@ -2,6 +2,7 @@ import request from 'supertest';
 import httpStatus from 'http-status';
 import User from '../../models/user';
 import Article from '../../models/article';
+import Tag from '../../models/tag';
 
 /* AUTH */
 const testUserInfo = {
@@ -99,5 +100,10 @@ export const cleanUpUser = async (callback = undefined) => {
 
 export const cleanUpArticle = async (callback = undefined) => {
   await Article.deleteMany({}).exec();
+  return callback ? callback() : Promise.resolve();
+};
+
+export const cleanUpTag = async (callback = undefined) => {
+  await Tag.deleteMany({}).exec();
   return callback ? callback() : Promise.resolve();
 };

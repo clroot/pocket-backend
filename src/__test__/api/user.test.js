@@ -10,6 +10,7 @@ import {
   updateArticle,
   cleanUpUser,
   cleanUpArticle,
+  cleanUpTag,
 } from './api-helper';
 
 chai.use(chaiString);
@@ -17,9 +18,8 @@ chai.use(chaiString);
 describe('User API', () => {
   const prefix = '/api/v1/user';
   let server;
-  let accessTokenCookie;
 
-  let testArticleId;
+  let accessTokenCookie;
   const testTagName = 'test1';
   const testNoneExistTagName = 'NoneExistTag';
 
@@ -27,17 +27,17 @@ describe('User API', () => {
     server = await startServer();
     await registerUser();
     accessTokenCookie = await getAccessTokenCookie(server);
-    const { _id } = await saveArticle(server, accessTokenCookie);
-    testArticleId = _id;
-    await updateArticle(server, accessTokenCookie, _id, {
+    const article = await saveArticle(server, accessTokenCookie);
+    await updateArticle(server, accessTokenCookie, article._id, {
       tags: [testTagName],
     });
     done();
   });
 
   afterAll(async (done) => {
-    await cleanUpUser();
+    await cleanUpTag();
     await cleanUpArticle();
+    await cleanUpUser();
     await closeServer(server);
     done();
   });
