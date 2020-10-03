@@ -62,7 +62,7 @@ describe('Authentication API', () => {
     });
   });
 
-  describe.only(`POST ${prefix}/login는 `, () => {
+  describe(`POST ${prefix}/login는 `, () => {
     const url = `${prefix}/login`;
     beforeAll((done) => {
       registerUser(testUserInfo, done);
