@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import loadVariable from './loadVariable';
 
 class Database {
   constructor() {
+    loadVariable();
     const { MONGO_URI, NODE_ENV } = process.env;
 
     this.mongoUri = MONGO_URI;
@@ -19,21 +21,16 @@ class Database {
   async connect() {
     if (this.NODE_ENV === 'test') {
       this.memoryServer = new MongoMemoryServer();
-      const URI = await this.memoryServer.getUri();
-
-      mongoose
-        .connect(URI, this.mongooseOpt)
-        .then(() => console.log('Connected to In-Memory MongoDB'));
-    } else {
-      mongoose
-        .connect(this.mongoUri, this.mongooseOpt)
-        .then(() => {
-          console.log('Connected to MongoDB...');
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      this.mongoUri = await this.memoryServer.getUri();
     }
+    mongoose
+      .connect(this.mongoUri, this.mongooseOpt)
+      .then(() => {
+        console.log('Connected to MongoDB...');
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   async closeConnect() {
