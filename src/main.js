@@ -37,7 +37,7 @@ export const startServer = async (
   port = PORT || 4000,
   callback = undefined,
 ) => {
-  if (process.env.NODE_ENV === 'test' && port === 4000) {
+  if (process.env.NODE_ENV === 'test') {
     port = await getPort({ port: getPort.makeRange(4001, 5000) });
   }
 
