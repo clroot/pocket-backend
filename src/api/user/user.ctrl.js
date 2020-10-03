@@ -25,7 +25,12 @@ export const userTagRemove = async (ctx) => {
   const { name } = ctx.params;
 
   try {
-    await Tag.findOneAndRemove({ user, name }).exec();
+    const tag = await Tag.findOne({ user, name });
+    if (!tag) {
+      ctx.status = httpStatus.NOT_FOUND;
+      return;
+    }
+    await Tag.deleteOne({ _id: tag.id }).exec();
 
     ctx.status = httpStatus.NO_CONTENT;
     ctx.set('Removed-Tag', encodeBase64(name));
