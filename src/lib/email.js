@@ -22,16 +22,14 @@ const mailTransporter = nodeMailer.createTransport(
   }),
 );
 
-const sendEmail = async (
+export const sendEmail = async (
   payload = { ...defaultEmailParams },
   callback = undefined,
 ) => {
   const { to, title, body, from } = { ...defaultEmailParams, ...payload };
 
-  let result;
-
   try {
-    result = await mailTransporter.sendMail({
+    await mailTransporter.sendMail({
       to,
       from,
       subject: title,
@@ -39,10 +37,12 @@ const sendEmail = async (
     });
   } catch (error) {
     console.error(error);
-    return callback ? callback(error, undefined) : Promise.reject(error);
+    return callback
+      ? callback(error, undefined)
+      : Promise.reject({ status: false, error });
   }
 
-  return callback ? callback(undefined, result) : Promise.resolve(result);
+  return callback
+    ? callback(undefined, { status: true })
+    : Promise.resolve({ status: true });
 };
-
-export default sendEmail;
