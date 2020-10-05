@@ -17,17 +17,26 @@ describe('Email 객체의 ', () => {
         done();
       });
 
-      it('email이 발송된다', (done) => {
+      it('email 이 발송된다', (done) => {
         Email.sendEmail({
-          to: 'abcdkh1209@icloud.com',
-          title: '메일 발송 테스트',
-          body: '테스트 이메일입니다.',
+          to: 'clroot@kakao.com',
+          ...Email.createAuthEmail(),
         }).then(({ status }) => {
-          sinon.assert.calledOnce(stub);
+          //sinon.assert.calledOnce(stub);
           assert.isTrue(status);
           done();
         });
       }, 10000);
+    });
+  });
+  describe('createAuthEmail() 는', () => {
+    describe('성공시 ', () => {
+      it('인증 email의 body와 title을 return 한다. ', (done) => {
+        const { title, body } = Email.createAuthEmail('');
+        assert.isNotEmpty(title);
+        assert.isNotEmpty(body);
+        done();
+      });
     });
   });
 });
