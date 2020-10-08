@@ -159,4 +159,44 @@ describe('Authentication API', () => {
           }));
     });
   });
+
+  describe(`GET ${prefix}/verify/:code는 `, () => {
+    const url = `${prefix}/verify`;
+    const code = 'right-code';
+    let accessToken;
+
+    beforeAll(async (done) => {
+      await registerUser();
+      accessToken = await getAccessTokenCookie(server);
+      done();
+    });
+    afterAll(async (done) => {
+      await cleanUpUser();
+      done();
+    });
+
+    describe('성공시 ', () => {
+      it('frontend로 redirect한다. ', (done) =>
+        request(server)
+          .get(`${url}/${code}`)
+          .set('Cookie', accessToken)
+          .expect(httpStatus.FOUND)
+          .then((res) => {
+            const ssmCookie = Array.from(
+              res.headers['set-cookie'],
+            ).find((iter) => iter.includes('ssm'));
+            assert.isString(ssmCookie);
+            assert.notInclude(ssmCookie, 'httponly');
+            done();
+          }));
+    });
+    describe('실패시 ', () => {
+      it('옳바른 code가 전달되지 않으면, 400 BAD_REQUEST', (done) =>
+        request(server)
+          .get(`${url}/wrong-code`)
+          .set('Cookie', accessToken)
+          .expect(httpStatus.BAD_REQUEST)
+          .end(done));
+    });
+  });
 });
