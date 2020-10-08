@@ -16,6 +16,10 @@ const UserSchema = new Schema({
     required: true,
   },
   hashedPassword: String,
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 UserSchema.methods.setPassword = async function (password) {
