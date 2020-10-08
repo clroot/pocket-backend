@@ -1,8 +1,10 @@
 import request from 'supertest';
 import chai, { expect } from 'chai';
 import chaiString from 'chai-string';
+import sinon from 'sinon';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
+import * as Email from '../../lib/email';
 
 chai.use(chaiString);
 
@@ -19,6 +21,15 @@ describe('Social Authentication API', () => {
   });
 
   describe(`POST ${prefix}/register 는`, () => {
+    let stub;
+    beforeAll((done) => {
+      stub = sinon.stub(Email, 'sendEmail').resolves({ status: true });
+      done();
+    });
+    afterAll((done) => {
+      stub.restore();
+      done();
+    });
     //TODO: 테스트 구현
   });
 
