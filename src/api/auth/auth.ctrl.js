@@ -1,7 +1,8 @@
 import Joi from 'joi';
 import httpStatus from 'http-status';
 import User from '../../models/user';
-import { setTokenCookie } from '../../lib/token';
+import { setTokenCookie, generateToken } from '../../lib/token';
+import { sendEmail, createAuthEmail } from '../../lib/email';
 
 /**
  * POST /api/v1/auth/register
@@ -41,6 +42,9 @@ export const register = async (ctx) => {
       maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true,
     });
+
+    const emailAuthToken = generateToken({ user: user.id });
+    await sendEmail({ to: email, ...createAuthEmail(emailAuthToken) });
   } catch (error) {
     ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
