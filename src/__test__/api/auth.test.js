@@ -1,9 +1,11 @@
 import request from 'supertest';
 import chai, { assert, expect } from 'chai';
 import chaiString from 'chai-string';
+import sinon from 'sinon';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
 import { registerUser, getAccessTokenCookie, cleanUpUser } from './api-helper';
+import * as Email from '../../lib/email';
 
 chai.use(chaiString);
 
@@ -12,7 +14,7 @@ describe('Authentication API', () => {
   let server;
 
   const testUserInfo = {
-    email: 'pocket@clroot.io',
+    email: 'clroot@kakao.com',
     username: 'clroot',
     password: 'password',
   };
@@ -29,7 +31,13 @@ describe('Authentication API', () => {
 
   describe(`POST ${prefix}/register는 `, () => {
     const url = `${prefix}/register`;
+    let stub;
+    beforeAll((done) => {
+      stub = sinon.stub(Email, 'sendEmail').resolves({ status: true });
+      done();
+    });
     afterAll((done) => {
+      stub.restore();
       cleanUpUser(done);
     });
 
