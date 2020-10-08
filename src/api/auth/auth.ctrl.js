@@ -1,6 +1,7 @@
 import Joi from 'joi';
 import httpStatus from 'http-status';
 import User from '../../models/user';
+import EmailAuth from '../../models/emailAuth';
 import { setTokenCookie, generateToken } from '../../lib/token';
 import { sendEmail, createAuthEmail } from '../../lib/email';
 
@@ -43,7 +44,10 @@ export const register = async (ctx) => {
       httpOnly: true,
     });
 
+    //TODO: 코드 간소화
     const emailAuthToken = generateToken({ user: user.id });
+    const emailAuth = new EmailAuth({ user: user.id, token: emailAuthToken });
+    await emailAuth.save();
     await sendEmail({ to: email, ...createAuthEmail(emailAuthToken) });
   } catch (error) {
     ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
