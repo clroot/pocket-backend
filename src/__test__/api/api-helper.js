@@ -1,8 +1,10 @@
 import request from 'supertest';
 import httpStatus from 'http-status';
+import { generateToken } from '../../lib/token';
 import User from '../../models/user';
 import Article from '../../models/article';
 import Tag from '../../models/tag';
+import EmailAuth from '../../models/emailAuth';
 
 /* AUTH */
 const testUserInfo = {
@@ -20,7 +22,13 @@ export const registerUser = async (
   await record.setPassword(password);
   await record.save();
 
-  return callback ? callback() : Promise.resolve();
+  const emailAuth = new EmailAuth({
+    token: generateToken({ email }),
+    user: record.id,
+  });
+  await emailAuth.save();
+
+  return callback ? callback(record) : record;
 };
 
 export const removeUser = async (
@@ -55,6 +63,17 @@ export const getAccessTokenCookie = async (
   return callback
     ? callback(accessTokenCookie)
     : Promise.resolve(accessTokenCookie);
+};
+
+export const getEmailAuthToken = async (
+  payload = { userId: null },
+  callback = null,
+) => {
+  const { userId } = payload;
+  const emailAuth = await EmailAuth.findOne({ user: userId });
+  const token = emailAuth.token;
+
+  return callback ? callback(token) : token;
 };
 
 /* ARTICLE */

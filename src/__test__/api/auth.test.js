@@ -4,7 +4,12 @@ import chaiString from 'chai-string';
 import sinon from 'sinon';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
-import { registerUser, getAccessTokenCookie, cleanUpUser } from './api-helper';
+import {
+  registerUser,
+  getAccessTokenCookie,
+  cleanUpUser,
+  getEmailAuthToken,
+} from './api-helper';
 import * as Email from '../../lib/email';
 
 chai.use(chaiString);
@@ -72,12 +77,14 @@ describe('Authentication API', () => {
 
   describe(`POST ${prefix}/login는 `, () => {
     const url = `${prefix}/login`;
-    beforeAll((done) => {
-      registerUser(testUserInfo, done);
+    beforeAll(async (done) => {
+      await registerUser(testUserInfo);
+      done();
     });
 
-    afterAll((done) => {
-      cleanUpUser(done);
+    afterAll(async (done) => {
+      await cleanUpUser();
+      done();
     });
 
     describe('성공시 ', () => {
@@ -160,14 +167,15 @@ describe('Authentication API', () => {
     });
   });
 
-  describe(`GET ${prefix}/verify/:code는 `, () => {
+  describe(`POST ${prefix}/verify는 `, () => {
     const url = `${prefix}/verify`;
-    const code = 'right-code';
+    let token;
     let accessToken;
 
     beforeAll(async (done) => {
-      await registerUser();
+      const user = await registerUser();
       accessToken = await getAccessTokenCookie(server);
+      token = await getEmailAuthToken({ userId: user._id });
       done();
     });
     afterAll(async (done) => {
@@ -178,24 +186,23 @@ describe('Authentication API', () => {
     describe('성공시 ', () => {
       it('frontend로 redirect한다. ', (done) =>
         request(server)
-          .get(`${url}/${code}`)
+          .post(url)
           .set('Cookie', accessToken)
-          .expect(httpStatus.FOUND)
+          .send({ token })
+          .expect(httpStatus.OK)
           .then((res) => {
-            const ssmCookie = Array.from(
-              res.headers['set-cookie'],
-            ).find((iter) => iter.includes('ssm'));
-            assert.isString(ssmCookie);
-            assert.notInclude(ssmCookie, 'httponly');
+            assert.equal(res.body.type, 'email-verified');
+            assert.isTrue(res.body.status);
             done();
           }));
     });
     describe('실패시 ', () => {
-      it('옳바른 code가 전달되지 않으면, 400 BAD_REQUEST', (done) =>
+      it('옳바른 code가 전달되지 않으면, 404 NOT_FOUND', (done) =>
         request(server)
-          .get(`${url}/wrong-code`)
+          .post(url)
+          .send({ token: 'wrong-token' })
           .set('Cookie', accessToken)
-          .expect(httpStatus.BAD_REQUEST)
+          .expect(httpStatus.NOT_FOUND)
           .end(done));
     });
   });

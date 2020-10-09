@@ -42,6 +42,11 @@ UserSchema.methods.generateToken = function () {
   return generateToken({ _id: this.id, username: this.username });
 };
 
+UserSchema.methods.setVerified = async function () {
+  this.isVerified = true;
+  await this.save();
+};
+
 UserSchema.statics.findByEmail = function (email) {
   return this.findOne({ email });
 };
