@@ -65,17 +65,6 @@ export const getAccessTokenCookie = async (
     : Promise.resolve(accessTokenCookie);
 };
 
-export const getEmailAuthToken = async (
-  payload = { userId: null },
-  callback = null,
-) => {
-  const { userId } = payload;
-  const emailAuth = await EmailAuth.findOne({ user: userId });
-  const token = emailAuth.token;
-
-  return callback ? callback(token) : token;
-};
-
 /* ARTICLE */
 const testArticle = {
   url: 'https://github.com/clroot/pocket-backend',
@@ -109,6 +98,18 @@ export const updateArticle = async (
     .set('Cookie', accessTokenCookie)
     .expect(httpStatus.OK);
   return callback ? callback(article) : Promise.resolve(article);
+};
+
+/* USER */
+export const getEmailAuthToken = async (
+  payload = { userId: null },
+  callback = null,
+) => {
+  const { userId } = payload;
+  const emailAuth = await EmailAuth.findOne({ user: userId });
+  const token = emailAuth.token;
+
+  return callback ? callback(token) : token;
 };
 
 /* CLEAN UP DATABASE */

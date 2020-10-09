@@ -4,12 +4,7 @@ import chaiString from 'chai-string';
 import sinon from 'sinon';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
-import {
-  registerUser,
-  getAccessTokenCookie,
-  cleanUpUser,
-  getEmailAuthToken,
-} from './api-helper';
+import { registerUser, getAccessTokenCookie, cleanUpUser } from './api-helper';
 import * as Email from '../../lib/email';
 
 chai.use(chaiString);
@@ -164,46 +159,6 @@ describe('Authentication API', () => {
             expect(setCookie).to.startWith('access_token=;');
             done();
           }));
-    });
-  });
-
-  describe(`POST ${prefix}/verify는 `, () => {
-    const url = `${prefix}/verify`;
-    let token;
-    let accessToken;
-
-    beforeAll(async (done) => {
-      const user = await registerUser();
-      accessToken = await getAccessTokenCookie(server);
-      token = await getEmailAuthToken({ userId: user._id });
-      done();
-    });
-    afterAll(async (done) => {
-      await cleanUpUser();
-      done();
-    });
-
-    describe('성공시 ', () => {
-      it('frontend로 redirect한다. ', (done) =>
-        request(server)
-          .post(url)
-          .set('Cookie', accessToken)
-          .send({ token })
-          .expect(httpStatus.OK)
-          .then((res) => {
-            assert.equal(res.body.type, 'email-verified');
-            assert.isTrue(res.body.status);
-            done();
-          }));
-    });
-    describe('실패시 ', () => {
-      it('옳바른 code가 전달되지 않으면, 404 NOT_FOUND', (done) =>
-        request(server)
-          .post(url)
-          .send({ token: 'wrong-token' })
-          .set('Cookie', accessToken)
-          .expect(httpStatus.NOT_FOUND)
-          .end(done));
     });
   });
 });

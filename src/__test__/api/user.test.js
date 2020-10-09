@@ -1,5 +1,5 @@
 import request from 'supertest';
-import chai, { assert, expect } from 'chai';
+import chai, { assert } from 'chai';
 import chaiString from 'chai-string';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
@@ -11,6 +11,7 @@ import {
   cleanUpUser,
   cleanUpArticle,
   cleanUpTag,
+  getEmailAuthToken,
 } from './api-helper';
 
 chai.use(chaiString);
@@ -19,13 +20,14 @@ describe('User API', () => {
   const prefix = '/api/v1/user';
   let server;
 
+  let user;
   let accessTokenCookie;
   const testTagName = 'test1';
   const testNoneExistTagName = 'NoneExistTag';
 
   beforeAll(async (done) => {
     server = await startServer();
-    await registerUser();
+    user = await registerUser();
     accessTokenCookie = await getAccessTokenCookie(server);
     const article = await saveArticle(server, accessTokenCookie);
     await updateArticle(server, accessTokenCookie, article._id, {
@@ -80,6 +82,43 @@ describe('User API', () => {
       it('해당 name의 태그가 없으면, 404 NOT_FOUND', (done) =>
         request(server)
           .delete(`${prefix}/tags/${testNoneExistTagName}`)
+          .set('Cookie', accessTokenCookie)
+          .expect(httpStatus.NOT_FOUND)
+          .end(done));
+    });
+  });
+
+  describe(`POST ${prefix}/verify는 `, () => {
+    const url = `${prefix}/verify`;
+    let token;
+
+    beforeAll(async (done) => {
+      token = await getEmailAuthToken({ userId: user._id });
+      done();
+    });
+    afterAll(async (done) => {
+      await cleanUpUser();
+      done();
+    });
+
+    describe('성공시 ', () => {
+      it('frontend로 redirect한다. ', (done) =>
+        request(server)
+          .post(url)
+          .set('Cookie', accessTokenCookie)
+          .send({ token })
+          .expect(httpStatus.OK)
+          .then((res) => {
+            assert.equal(res.body.type, 'email-verified');
+            assert.isTrue(res.body.status);
+            done();
+          }));
+    });
+    describe('실패시 ', () => {
+      it('옳바른 code가 전달되지 않으면, 404 NOT_FOUND', (done) =>
+        request(server)
+          .post(url)
+          .send({ token: 'wrong-token' })
           .set('Cookie', accessTokenCookie)
           .expect(httpStatus.NOT_FOUND)
           .end(done));

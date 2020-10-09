@@ -7,5 +7,6 @@ const user = new Router();
 
 user.get('/tags', checkLoggedIn, userCtrl.userTagList);
 user.delete('/tags/:name', checkLoggedIn, userCtrl.userTagRemove);
+user.post('/verify', checkLoggedIn, userCtrl.verify);
 
 export default user;

@@ -106,34 +106,3 @@ export const logout = async (ctx) => {
   ctx.cookies.set('access_token');
   ctx.status = httpStatus.NO_CONTENT;
 };
-
-/**
- * POST /api/v1/auth/verify
- */
-export const verify = async (ctx) => {
-  const { token } = ctx.request.body;
-  const { auth } = ctx.state;
-  try {
-    const emailAuth = await EmailAuth.findOne({ token });
-    if (!emailAuth) {
-      ctx.status = httpStatus.NOT_FOUND;
-      return;
-    }
-    if (emailAuth.token !== token && emailAuth.user.toString() !== auth.user) {
-      ctx.status = httpStatus.BAD_REQUEST;
-      return;
-    }
-    await emailAuth.remove();
-
-    const user = await User.findById(auth.user);
-    user.setVerified();
-    await user.updateOne().exec();
-
-    ctx.body = {
-      type: 'email-verified',
-      status: true,
-    };
-  } catch (error) {
-    ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
-  }
-};
