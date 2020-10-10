@@ -47,26 +47,30 @@ export const userTagRemove = async (ctx) => {
 export const verify = async (ctx) => {
   const { token } = ctx.request.body;
   const { auth } = ctx.state;
+  const type = 'email-verify';
+  const response = (status) => ({ type, status });
+
   try {
+    const user = await User.findById(auth.user);
     const emailAuth = await EmailAuth.findOne({ token });
+
+    if (user.isVerified) {
+      ctx.body = response('already-verified');
+      return;
+    }
     if (!emailAuth) {
-      ctx.status = httpStatus.NOT_FOUND;
+      ctx.body = response('invalid-token');
       return;
     }
     if (emailAuth.token !== token && emailAuth.user.toString() !== auth.user) {
-      ctx.status = httpStatus.BAD_REQUEST;
+      ctx.body = response('invalid-token');
       return;
     }
     await emailAuth.remove();
-
-    const user = await User.findById(auth.user);
     user.setVerified();
     await user.updateOne().exec();
 
-    ctx.body = {
-      type: 'email-verified',
-      status: true,
-    };
+    ctx.body = response('success');
   } catch (error) {
     ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
   }
