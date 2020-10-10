@@ -1,7 +1,6 @@
 import Joi from 'joi';
 import httpStatus from 'http-status';
-import User from '../../models/user';
-import EmailAuth from '../../models/emailAuth';
+import { User, EmailAuth } from '../../models';
 import { setTokenCookie, generateToken } from '../../lib/token';
 import { sendEmail, createAuthEmail } from '../../lib/email';
 

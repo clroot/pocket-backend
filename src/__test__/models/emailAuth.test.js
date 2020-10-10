@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import EmailAuth from '../../models/emailAuth';
+import { EmailAuth } from '../../models';
 import { generateObjectId } from '../test-utils';
 
 describe('EmailAuth 모델은 ', () => {

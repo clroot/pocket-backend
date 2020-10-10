@@ -1,8 +1,6 @@
 import httpStatus from 'http-status';
 import { encodeBase64 } from '../../lib/utils';
-import User from '../../models/user';
-import EmailAuth from '../../models/emailAuth';
-import Tag from '../../models/tag';
+import { User, EmailAuth, Tag } from '../../models';
 
 /**
  * /api/v1/user/tags

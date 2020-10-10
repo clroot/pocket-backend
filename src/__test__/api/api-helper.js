@@ -1,10 +1,7 @@
 import request from 'supertest';
 import httpStatus from 'http-status';
 import { generateToken } from '../../lib/token';
-import User from '../../models/user';
-import Article from '../../models/article';
-import Tag from '../../models/tag';
-import EmailAuth from '../../models/emailAuth';
+import { Article, EmailAuth, User, Tag } from '../../models';
 
 /* AUTH */
 const testUserInfo = {

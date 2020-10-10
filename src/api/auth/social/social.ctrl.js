@@ -5,9 +5,7 @@ import qs from 'qs';
 import { getApiHost, getAppHost, encodeBase64 } from '../../../lib/utils';
 import { generateToken, decodeToken, setTokenCookie } from '../../../lib/token';
 import { sendEmail, createAuthEmail } from '../../../lib/email';
-import SocialAccount from '../../../models/socialAccount';
-import User from '../../../models/user';
-import EmailAuth from '../../../models/emailAuth';
+import { User, SocialAccount, EmailAuth } from '../../../models';
 
 /**
  * POST /api/v1/auth/social/register

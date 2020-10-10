@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
 import Joi from 'joi';
 import httpStatus from 'http-status';
-import Article from '../../models/article';
-import Tag from '../../models/tag';
+import { Article, Tag } from '../../models';
 
 const { ObjectId } = mongoose.Types;
 
