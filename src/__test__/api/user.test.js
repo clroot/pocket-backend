@@ -102,6 +102,13 @@ describe('User API', () => {
     });
 
     describe('성공시 ', () => {
+      afterAll(async (done) => {
+        await cleanUpUser();
+        user = await registerUser();
+        accessTokenCookie = await getAccessTokenCookie(server);
+        done();
+      });
+
       it('frontend로 redirect한다. ', (done) =>
         request(server)
           .post(url)
@@ -109,19 +116,23 @@ describe('User API', () => {
           .send({ token })
           .expect(httpStatus.OK)
           .then((res) => {
-            assert.equal(res.body.type, 'email-verified');
-            assert.isTrue(res.body.status);
+            assert.equal(res.body.type, 'email-verify');
+            assert.equal(res.body.status, 'success');
             done();
           }));
     });
     describe('실패시 ', () => {
-      it('옳바른 code가 전달되지 않으면, 404 NOT_FOUND', (done) =>
+      it('옳바른 code가 전달되지 않으면, 응답의 status = invalid-token', (done) =>
         request(server)
           .post(url)
           .send({ token: 'wrong-token' })
           .set('Cookie', accessTokenCookie)
-          .expect(httpStatus.NOT_FOUND)
-          .end(done));
+          .expect(httpStatus.OK)
+          .then((res) => {
+            assert.equal(res.body.type, 'email-verify');
+            assert.equal(res.body.status, 'invalid-token');
+            done();
+          }));
     });
   });
 });
