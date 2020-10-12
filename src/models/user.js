@@ -12,7 +12,7 @@ const UserSchema = new Schema({
   username: {
     type: String,
     trim: true,
-    index: true,
+    unique: true,
     required: true,
   },
   hashedPassword: String,
@@ -49,6 +49,11 @@ UserSchema.methods.setVerified = async function () {
 
 UserSchema.statics.findByEmail = function (email) {
   return this.findOne({ email });
+};
+
+UserSchema.statics.checkDuplication = async function ({ email, username }) {
+  const check = await this.findOne({ $or: [{ email }, { username }] });
+  return !!check;
 };
 
 const User = mongoose.model('User', UserSchema);

@@ -24,8 +24,18 @@ export const register = async (ctx) => {
   const { email, username, password } = ctx.request.body;
 
   try {
-    const exists = await User.findByEmail(email);
-    if (exists) {
+    const isDuplicate = await User.checkDuplication({ email, username });
+    if (isDuplicate) {
+      let field;
+
+      const isEmail = await User.findByEmail(email);
+      if (isEmail) {
+        field = 'email';
+      } else {
+        field = 'username';
+      }
+
+      ctx.body = { field };
       ctx.status = httpStatus.CONFLICT;
       return;
     }
