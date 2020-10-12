@@ -4,8 +4,8 @@ import { generateToken } from '../../lib/token';
 import { Article, EmailAuth, User, Tag } from '../../models';
 
 /* AUTH */
-const testUserInfo = {
-  email: 'pocket@clroot.io',
+export const testUserInfo = {
+  email: 'clroot@kakao.com',
   username: 'clroot',
   password: 'password',
 };
@@ -14,7 +14,7 @@ export const registerUser = async (
   payload = { ...testUserInfo },
   callback = undefined,
 ) => {
-  const { email, username, password } = payload;
+  const { email, username, password } = { ...testUserInfo, ...payload };
   const record = new User({ email, username });
   await record.setPassword(password);
   await record.save();

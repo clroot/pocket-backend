@@ -4,7 +4,12 @@ import chaiString from 'chai-string';
 import sinon from 'sinon';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
-import { registerUser, getAccessTokenCookie, cleanUpUser } from './api-helper';
+import {
+  testUserInfo,
+  registerUser,
+  getAccessTokenCookie,
+  cleanUpUser,
+} from './api-helper';
 import * as Email from '../../lib/email';
 
 chai.use(chaiString);
@@ -12,12 +17,6 @@ chai.use(chaiString);
 describe('Authentication API', () => {
   const prefix = '/api/v1/auth';
   let server;
-
-  const testUserInfo = {
-    email: 'clroot@kakao.com',
-    username: 'clroot',
-    password: 'password',
-  };
 
   beforeAll(async (done) => {
     server = await startServer();
@@ -42,6 +41,11 @@ describe('Authentication API', () => {
     });
 
     describe('성공시 ', () => {
+      afterAll(async (done) => {
+        await cleanUpUser();
+        done();
+      });
+
       it('user 객체를 return한다. ', (done) =>
         request(server)
           .post(url)
@@ -55,12 +59,29 @@ describe('Authentication API', () => {
           }));
     });
     describe('실패시 ', () => {
+      beforeAll(async (done) => {
+        await registerUser(testUserInfo);
+        done();
+      });
+
       it('email이 중복되면 409 CONFLICT', (done) =>
         request(server)
           .post(url)
           .send(testUserInfo)
           .expect(httpStatus.CONFLICT)
-          .end(done));
+          .then((res) => {
+            assert.equal(res.body.field, 'email');
+            done();
+          }));
+      it('username이 중복되면 409 CONFLICT', (done) =>
+        request(server)
+          .post(url)
+          .send({ ...testUserInfo, email: 'clroot-2@kakao.com' })
+          .expect(httpStatus.CONFLICT)
+          .then((res) => {
+            assert.equal(res.body.field, 'username');
+            done();
+          }));
       it('field가 충족되지 않으면, 400 BAD_REQUEST', (done) =>
         request(server)
           .post(url)
