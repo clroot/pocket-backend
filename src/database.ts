@@ -6,8 +6,8 @@ loadVariable();
 const { MONGO_URI, NODE_ENV } = process.env;
 
 class Database {
-  mongoUri: String = MONGO_URI || '';
-  NODE_ENV: String = NODE_ENV || 'development';
+  mongoUri: string = MONGO_URI || '';
+  NODE_ENV: string = NODE_ENV || 'development';
   mongooseOpt = {
     useNewUrlParser: true,
     useFindAndModify: false,
