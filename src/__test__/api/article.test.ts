@@ -1,3 +1,4 @@
+import { Server } from 'http';
 import request from 'supertest';
 import chai, { assert, expect } from 'chai';
 import chaiString from 'chai-string';
@@ -7,11 +8,11 @@ import {
   registerUser,
   removeUser,
   getAccessTokenCookie,
-  cleanUpUser,
-  cleanUpArticle,
   saveArticle,
+  cleanUp,
 } from './api-helper';
 import { generateObjectId } from '../test-utils';
+import { Article, User } from '../../models';
 
 describe('Article API', () => {
   const prefix = '/api/v1/articles';
@@ -19,8 +20,8 @@ describe('Article API', () => {
     url: 'https://github.com/clroot/pocket-backend',
     tags: [],
   };
-  let server;
-  let accessTokenCookie;
+  let server: Server;
+  let accessTokenCookie: string;
 
   beforeAll(async (done) => {
     server = await startServer();
@@ -30,8 +31,8 @@ describe('Article API', () => {
   });
 
   afterAll(async (done) => {
-    await cleanUpArticle();
-    await cleanUpUser();
+    await cleanUp(Article);
+    await cleanUp(User);
     await closeServer(server);
     done();
   });
@@ -66,7 +67,7 @@ describe('Article API', () => {
     const url = prefix;
 
     afterAll((done) => {
-      cleanUpArticle(done);
+      cleanUp(Article, done);
     });
 
     describe('성공시 ', () => {
@@ -99,7 +100,7 @@ describe('Article API', () => {
   });
 
   describe(`GET ${prefix}/:id는 `, () => {
-    let id;
+    let id: string;
 
     beforeAll(async (done) => {
       const { _id } = await saveArticle(server, accessTokenCookie);
@@ -107,7 +108,7 @@ describe('Article API', () => {
       done();
     });
     afterAll((done) => {
-      cleanUpArticle(done);
+      cleanUp(Article, done);
     });
 
     describe('성공시 ', () => {
@@ -132,14 +133,14 @@ describe('Article API', () => {
   });
 
   describe(`DELETE ${prefix}/:id는 `, () => {
-    let id;
+    let id: string;
     beforeEach(async (done) => {
       const { _id } = await saveArticle(server, accessTokenCookie);
       id = _id;
       done();
     });
     afterEach((done) => {
-      cleanUpArticle(done);
+      cleanUp(Article, done);
     });
 
     describe('성공시 ', () => {
@@ -156,7 +157,7 @@ describe('Article API', () => {
         username: 'another',
         password: 'another-password',
       };
-      let anotherAccessToken;
+      let anotherAccessToken: string;
 
       beforeAll(async (done) => {
         await registerUser(anotherUser);
@@ -187,7 +188,7 @@ describe('Article API', () => {
     const updateArticle = {
       tags: ['sampleTag'],
     };
-    let id;
+    let id: string;
 
     beforeAll(async (done) => {
       const { _id } = await saveArticle(server, accessTokenCookie);
@@ -196,7 +197,7 @@ describe('Article API', () => {
     });
 
     afterAll((done) => {
-      cleanUpArticle(done);
+      cleanUp(Article, done);
     });
 
     describe('성공시 ', () => {
@@ -217,7 +218,7 @@ describe('Article API', () => {
         username: 'another',
         password: 'another-password',
       };
-      let anotherAccessToken;
+      let anotherAccessToken: string;
 
       beforeAll(async (done) => {
         await registerUser(anotherUser);

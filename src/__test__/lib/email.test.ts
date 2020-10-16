@@ -1,4 +1,4 @@
-import sinon from 'sinon';
+import sinon, { SinonStub } from 'sinon';
 import chai, { assert } from 'chai';
 import chaiString from 'chai-string';
 import * as Email from '../../lib/email';
@@ -7,7 +7,7 @@ chai.use(chaiString);
 describe('Email 객체의 ', () => {
   describe('sendEmail() 는', () => {
     describe('성공시 ', () => {
-      let stub;
+      let stub: SinonStub;
       beforeAll((done) => {
         stub = sinon.stub(Email, 'sendEmail').resolves({ status: true });
         done();
@@ -20,9 +20,8 @@ describe('Email 객체의 ', () => {
       it('email 이 발송된다', (done) => {
         Email.sendEmail({
           to: 'clroot@kakao.com',
-          ...Email.createAuthEmail(),
+          ...Email.createAuthEmail(''),
         }).then(({ status }) => {
-          //sinon.assert.calledOnce(stub);
           assert.isTrue(status);
           done();
         });

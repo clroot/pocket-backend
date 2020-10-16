@@ -1,27 +1,27 @@
+import { Server } from 'http';
 import request from 'supertest';
 import chai, { assert } from 'chai';
 import chaiString from 'chai-string';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
+import { Article, IUserDocument, Tag, User } from '../../models';
 import {
   registerUser,
   getAccessTokenCookie,
   saveArticle,
   updateArticle,
-  cleanUpUser,
-  cleanUpArticle,
-  cleanUpTag,
   getEmailAuthToken,
+  cleanUp,
 } from './api-helper';
 
 chai.use(chaiString);
 
 describe('User API', () => {
   const prefix = '/api/v1/user';
-  let server;
+  let server: Server;
 
-  let user;
-  let accessTokenCookie;
+  let user: IUserDocument;
+  let accessTokenCookie: string;
   const testTagName = 'test1';
   const testNoneExistTagName = 'NoneExistTag';
 
@@ -37,9 +37,9 @@ describe('User API', () => {
   });
 
   afterAll(async (done) => {
-    await cleanUpTag();
-    await cleanUpArticle();
-    await cleanUpUser();
+    await cleanUp(Tag);
+    await cleanUp(Article);
+    await cleanUp(User);
     await closeServer(server);
     done();
   });
@@ -90,20 +90,20 @@ describe('User API', () => {
 
   describe(`POST ${prefix}/verify는 `, () => {
     const url = `${prefix}/verify`;
-    let token;
+    let token: string;
 
     beforeAll(async (done) => {
       token = await getEmailAuthToken({ userId: user._id });
       done();
     });
     afterAll(async (done) => {
-      await cleanUpUser();
+      await cleanUp(User);
       done();
     });
 
     describe('성공시 ', () => {
       afterAll(async (done) => {
-        await cleanUpUser();
+        await cleanUp(User);
         user = await registerUser();
         accessTokenCookie = await getAccessTokenCookie(server);
         done();

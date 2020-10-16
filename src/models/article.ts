@@ -1,0 +1,92 @@
+import { Schema, Types, Document, Model, model } from 'mongoose';
+import axios from 'axios';
+import ogs from 'open-graph-scraper';
+import cheerio from 'cheerio';
+import { Tag, ITag, ITagDocument, ITagParameter } from './index';
+
+const ArticleSchema = new Schema({
+  url: String,
+  meta: {
+    title: String,
+    description: String,
+    img: String,
+  },
+  tags: [{ type: Types.ObjectId, ref: 'Tag' }],
+  user: {
+    type: Types.ObjectId,
+    ref: 'User',
+  },
+  createAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+export interface IArticle {
+  url: string;
+  meta: {
+    title: string;
+    description: string;
+    img: string;
+  };
+  tags: (Types.ObjectId | ITag)[];
+  user: Types.ObjectId;
+  createAt: Date;
+}
+
+ArticleSchema.methods.createMetaData = async function () {
+  try {
+    const { data: html }: { data: string } = await axios.get(this.url);
+    const { result: ogData } = (await ogs({
+      html,
+    } as ogs.Options)) as ogs.SuccessResult;
+
+    const title = ogData.ogTitle || cheerio.load(html)('title').text() || '';
+    const description = ogData.ogDescription || '';
+    const img = ogData.ogImage?.url || '';
+
+    this.meta.title = title;
+    this.meta.description = description;
+    this.meta.img = img;
+
+    await this.save();
+  } catch (error) {
+    console.error(error);
+    throw new Error("Can not create article's meta data");
+  }
+};
+
+ArticleSchema.methods.updateTagData = async function (tags: string[]) {
+  const { user } = this;
+
+  const newTags = await Promise.all(
+    Array.from(tags).map(async (tag) => {
+      const record = await Tag.findOrCreate({
+        user,
+        name: tag,
+      } as ITagParameter);
+      return record.id;
+    }),
+  );
+
+  this.tags = newTags;
+
+  await this.save();
+};
+
+interface IArticleDocumentBase extends IArticle, Document {
+  createMetaData(): Promise<void>;
+  updateTagData(tags: ITagParameter[]): Promise<void>;
+}
+
+export interface IArticleDocument extends IArticleDocumentBase {
+  tags: ITagDocument['_id'][];
+}
+
+export interface IPopulatedArticleDocument extends IArticleDocumentBase {
+  tags: ITag[];
+}
+
+export interface IArticleModel extends Model<IArticleDocument> {}
+
+export default model<IArticleDocument, IArticleModel>('Article', ArticleSchema);

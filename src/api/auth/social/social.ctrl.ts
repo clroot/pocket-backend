@@ -1,3 +1,4 @@
+import { Context } from 'koa';
 import Joi from 'joi';
 import httpStatus from 'http-status';
 import axios from 'axios';
@@ -10,7 +11,7 @@ import { User, SocialAccount, EmailAuth } from '../../../models';
 /**
  * POST /api/v1/auth/social/register
  */
-export const register = async (ctx) => {
+export const register = async (ctx: Context) => {
   const registerToken = ctx.cookies.get('register_token');
   if (!registerToken) {
     ctx.status = httpStatus.UNAUTHORIZED;
@@ -31,7 +32,10 @@ export const register = async (ctx) => {
 
   let decoded;
   try {
-    decoded = decodeToken(registerToken);
+    decoded = decodeToken(registerToken) as {
+      socialId: string;
+      provider: string;
+    };
   } catch (error) {
     console.error(error);
     ctx.status = httpStatus.UNAUTHORIZED;
@@ -84,7 +88,7 @@ export const register = async (ctx) => {
 /**
  * /api/v1/auth/social/login/kakao
  */
-export const kakaoLogin = (ctx) => {
+export const kakaoLogin = (ctx: Context) => {
   const host = getApiHost();
   const { KAKAO_REST_API_KEY } = process.env;
 
@@ -97,7 +101,7 @@ export const kakaoLogin = (ctx) => {
 /**
  * /api/v1/auth/social/callback/kakao
  */
-export const kakaoCallback = async (ctx, next) => {
+export const kakaoCallback = async (ctx: Context, next: Function) => {
   const { code: authorizeCode } = ctx.query;
   const { KAKAO_REST_API_KEY } = process.env;
   const host = getApiHost();
@@ -135,7 +139,7 @@ export const kakaoCallback = async (ctx, next) => {
   return next();
 };
 
-export const socialCallback = async (ctx) => {
+export const socialCallback = async (ctx: Context) => {
   const { socialId, provider, username } = ctx.state.oauth;
   const host = getAppHost();
 

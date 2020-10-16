@@ -1,22 +1,24 @@
+import { Server } from 'http';
 import request from 'supertest';
 import chai, { assert, expect } from 'chai';
 import chaiString from 'chai-string';
-import sinon from 'sinon';
+import sinon, { SinonStub } from 'sinon';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
 import {
   testUserInfo,
   registerUser,
   getAccessTokenCookie,
-  cleanUpUser,
+  cleanUp,
 } from './api-helper';
 import * as Email from '../../lib/email';
+import { User } from '../../models';
 
 chai.use(chaiString);
 
 describe('Authentication API', () => {
   const prefix = '/api/v1/auth';
-  let server;
+  let server: Server;
 
   beforeAll(async (done) => {
     server = await startServer();
@@ -30,19 +32,19 @@ describe('Authentication API', () => {
 
   describe(`POST ${prefix}/register는 `, () => {
     const url = `${prefix}/register`;
-    let stub;
+    let stub: SinonStub;
     beforeAll((done) => {
       stub = sinon.stub(Email, 'sendEmail').resolves({ status: true });
       done();
     });
     afterAll((done) => {
       stub.restore();
-      cleanUpUser(done);
+      cleanUp(User, done);
     });
 
     describe('성공시 ', () => {
       afterAll(async (done) => {
-        await cleanUpUser();
+        await cleanUp(User);
         done();
       });
 
@@ -99,7 +101,7 @@ describe('Authentication API', () => {
     });
 
     afterAll(async (done) => {
-      await cleanUpUser();
+      await cleanUp(User);
       done();
     });
 
@@ -140,7 +142,7 @@ describe('Authentication API', () => {
 
   describe(`GET ${prefix}/check는`, () => {
     const url = `${prefix}/check`;
-    let accessToken;
+    let accessToken: string;
 
     beforeAll(async (done) => {
       await registerUser(testUserInfo);
@@ -149,7 +151,7 @@ describe('Authentication API', () => {
     });
 
     afterAll((done) => {
-      cleanUpUser(done);
+      cleanUp(User, done);
     });
 
     describe('성공시 ', () => {

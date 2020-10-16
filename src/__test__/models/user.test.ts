@@ -1,9 +1,9 @@
 import { assert } from 'chai';
-import { User } from '../../models';
+import { User, IUserDocument } from '../../models';
 import { testUserInfo } from '../api/api-helper';
 
 describe('User 모델은', () => {
-  let user;
+  let user: IUserDocument;
   beforeEach(async (done) => {
     user = new User({ ...testUserInfo });
     await user.setPassword(testUserInfo.password);

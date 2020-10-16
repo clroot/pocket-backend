@@ -1,12 +1,11 @@
-import mongoose from 'mongoose';
+import { Types } from 'mongoose';
+import { Context } from 'koa';
 import Joi from 'joi';
 import httpStatus from 'http-status';
-import { Article, Tag } from '../../models';
+import { Article, Tag, IArticleDocument, ITag } from '../../models';
 
-const { ObjectId } = mongoose.Types;
-
-const serializeArticle = (article) => {
-  const extractTags = (tag) => tag.name;
+const serializeArticle = (article: IArticleDocument | IArticleDocument[]) => {
+  const extractTags = (tag: ITag) => tag.name;
   if (Array.isArray(article)) {
     return article.map((iter) => ({
       ...iter,
@@ -14,19 +13,20 @@ const serializeArticle = (article) => {
     }));
   }
 
-  article.tags = article.tags.map(extractTags);
-  return article;
+  return { ...article, tags: article.tags.map(extractTags) };
 };
 
-export const getArticleById = async (ctx, next) => {
+export const getArticleById = async (ctx: Context, next: Function) => {
   const { id } = ctx.params;
-  if (!ObjectId.isValid(id)) {
+  if (!Types.ObjectId.isValid(id)) {
     ctx.status = httpStatus.BAD_REQUEST;
     return;
   }
 
   try {
-    const article = await Article.findById(id).populate('tags', 'name').exec();
+    const article = (await Article.findById(id)
+      .populate('tags', 'name')
+      .exec()) as IArticleDocument;
     if (!article) {
       ctx.status = httpStatus.NOT_FOUND;
       return;
@@ -39,7 +39,7 @@ export const getArticleById = async (ctx, next) => {
   }
 };
 
-export const checkOwnArticle = (ctx, next) => {
+export const checkOwnArticle = (ctx: Context, next: Function) => {
   const {
     auth: { user },
     article,
@@ -56,7 +56,7 @@ export const checkOwnArticle = (ctx, next) => {
 /**
  * POST /api/v1/article
  */
-export const save = async (ctx) => {
+export const save = async (ctx: Context) => {
   const schema = Joi.object().keys({
     url: Joi.string().required(),
     tags: Joi.array().items(Joi.string()).required(),
@@ -90,7 +90,7 @@ export const save = async (ctx) => {
 /**
  * /api/v1/articles
  */
-export const list = async (ctx) => {
+export const list = async (ctx: Context) => {
   const page = parseInt(ctx.query.page || '1', 10);
   if (page < 1) {
     ctx.status = httpStatus.BAD_REQUEST;
@@ -107,17 +107,17 @@ export const list = async (ctx) => {
   };
 
   try {
-    const articles = await Article.find(query)
+    const articles = (await Article.find(query)
       .sort({ _id: -1 })
       .limit(10)
       .skip((page - 1) * 10)
       .lean()
       .populate('tags', 'name')
-      .exec();
+      .exec()) as IArticleDocument[];
 
     const articlesCount = await Article.countDocuments().exec();
 
-    ctx.set('Last-Page', Math.ceil(articlesCount / 10));
+    ctx.set('Last-Page', Math.ceil(articlesCount / 10).toString());
     ctx.body = serializeArticle(articles);
   } catch (error) {
     ctx.throw(httpStatus.INTERNAL_SERVER_ERROR, error);
@@ -127,14 +127,14 @@ export const list = async (ctx) => {
 /**
  * /api/v1/article/:id
  */
-export const read = async (ctx) => {
+export const read = async (ctx: Context) => {
   ctx.body = ctx.state.article;
 };
 
 /**
  * DELETE /api/v1/article/:id
  */
-export const remove = async (ctx) => {
+export const remove = async (ctx: Context) => {
   const { id } = ctx.params;
   try {
     await Article.findByIdAndRemove(id).exec();
@@ -148,7 +148,7 @@ export const remove = async (ctx) => {
 /**
  * PATCH /api/v1/article/:id
  */
-export const update = async (ctx) => {
+export const update = async (ctx: Context) => {
   const schema = Joi.object().keys({
     tags: Joi.array().items(Joi.string()),
   });
@@ -163,7 +163,7 @@ export const update = async (ctx) => {
   const { id } = ctx.params;
   let { tags } = ctx.request.body;
   try {
-    let article = await Article.findById(id);
+    let article = (await Article.findById(id)) as IArticleDocument;
     if (!article) {
       ctx.status = httpStatus.NOT_FOUND;
       return;

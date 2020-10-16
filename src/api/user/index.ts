@@ -1,7 +1,7 @@
 import Router from 'koa-router';
 
 import checkLoggedIn from '../../lib/checkLoggedIn';
-import * as userCtrl from './user.ctrl.js';
+import * as userCtrl from './user.ctrl';
 
 const user = new Router();
 

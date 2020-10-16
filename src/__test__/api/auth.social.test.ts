@@ -1,7 +1,8 @@
+import { Server } from 'http';
 import request from 'supertest';
 import chai, { expect } from 'chai';
 import chaiString from 'chai-string';
-import sinon from 'sinon';
+import sinon, { SinonStub } from 'sinon';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
 import * as Email from '../../lib/email';
@@ -10,7 +11,7 @@ chai.use(chaiString);
 
 describe('Social Authentication API', () => {
   const prefix = '/api/v1/auth/social';
-  let server;
+  let server: Server;
 
   beforeAll(async () => {
     server = await startServer();
@@ -21,7 +22,7 @@ describe('Social Authentication API', () => {
   });
 
   describe(`POST ${prefix}/register 는`, () => {
-    let stub;
+    let stub: SinonStub;
     beforeAll((done) => {
       stub = sinon.stub(Email, 'sendEmail').resolves({ status: true });
       done();
@@ -30,7 +31,6 @@ describe('Social Authentication API', () => {
       stub.restore();
       done();
     });
-    //TODO: 테스트 구현
   });
 
   describe(`GET ${prefix}/login/kakao 는`, () => {
