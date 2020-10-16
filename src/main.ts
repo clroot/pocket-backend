@@ -48,7 +48,8 @@ export const startServer = async (
     console.log(`Listening to port ${port}...`);
   });
 
-  return callback ? callback(server) : server;
+  callback && callback(undefined, server);
+  return server;
 };
 
 export const closeServer = async (server: Server) => {
