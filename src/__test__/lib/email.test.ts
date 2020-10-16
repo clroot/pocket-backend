@@ -20,9 +20,8 @@ describe('Email 객체의 ', () => {
       it('email 이 발송된다', (done) => {
         Email.sendEmail({
           to: 'clroot@kakao.com',
-          ...Email.createAuthEmail(),
+          ...Email.createAuthEmail(''),
         }).then(({ status }) => {
-          //sinon.assert.calledOnce(stub);
           assert.isTrue(status);
           done();
         });

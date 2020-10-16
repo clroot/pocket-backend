@@ -1,18 +1,25 @@
+import { Server } from 'http';
 import request from 'supertest';
 import httpStatus from 'http-status';
 import { generateToken } from '../../lib/token';
 import { Article, EmailAuth, User, Tag } from '../../models';
+import { IEmailAuthDocument } from '../../models/emailAuth';
 
 /* AUTH */
-export const testUserInfo = {
+interface IUserPayload {
+  email: string;
+  username: string;
+  password: string;
+}
+export const testUserInfo: IUserPayload = {
   email: 'clroot@kakao.com',
   username: 'clroot',
   password: 'password',
 };
 
 export const registerUser = async (
-  payload = { ...testUserInfo },
-  callback = undefined,
+  payload: IUserPayload = { ...testUserInfo },
+  callback?: Function,
 ) => {
   const { email, username, password } = { ...testUserInfo, ...payload };
   const record = new User({ email, username });
@@ -29,8 +36,8 @@ export const registerUser = async (
 };
 
 export const removeUser = async (
-  payload = { ...testUserInfo },
-  callback = undefined,
+  payload: IUserPayload = { ...testUserInfo },
+  callback?: Function,
 ) => {
   const { email } = payload;
   const user = await User.findByEmail(email);
@@ -40,9 +47,9 @@ export const removeUser = async (
 };
 
 export const getAccessTokenCookie = async (
-  server,
-  payload = { ...testUserInfo },
-  callback = undefined,
+  server: Server,
+  payload: IUserPayload = { ...testUserInfo },
+  callback?: Function,
 ) => {
   let accessTokenCookie;
   try {
@@ -57,22 +64,24 @@ export const getAccessTokenCookie = async (
     console.error(error);
   }
 
-  return callback
-    ? callback(accessTokenCookie)
-    : Promise.resolve(accessTokenCookie);
+  return callback ? callback(accessTokenCookie) : accessTokenCookie;
 };
 
 /* ARTICLE */
-const testArticle = {
+interface IArticlePayload {
+  url?: string;
+  tags: string[];
+}
+const testArticle: IArticlePayload = {
   url: 'https://github.com/clroot/pocket-backend',
   tags: [],
 };
 
 export const saveArticle = async (
-  server,
-  accessTokenCookie,
-  payload = { ...testArticle },
-  callback = undefined,
+  server: Server,
+  accessTokenCookie: string,
+  payload: IArticlePayload = { ...testArticle },
+  callback?: Function,
 ) => {
   const { body: article } = await request(server)
     .post('/api/v1/articles')
@@ -83,11 +92,11 @@ export const saveArticle = async (
 };
 
 export const updateArticle = async (
-  server,
-  accessTokenCookie,
-  articleId,
-  payload = { tags: [] },
-  callback = undefined,
+  server: Server,
+  accessTokenCookie: string,
+  articleId: string,
+  payload: IArticlePayload = { tags: [] },
+  callback?: Function,
 ) => {
   const { body: article } = await request(server)
     .patch(`/api/v1/articles/${articleId}`)
@@ -99,28 +108,30 @@ export const updateArticle = async (
 
 /* USER */
 export const getEmailAuthToken = async (
-  payload = { userId: null },
-  callback = null,
+  payload = { userId: '' },
+  callback?: Function,
 ) => {
   const { userId } = payload;
-  const emailAuth = await EmailAuth.findOne({ user: userId });
+  const emailAuth = (await EmailAuth.findOne({
+    user: userId,
+  })) as IEmailAuthDocument;
   const token = emailAuth.token;
 
   return callback ? callback(token) : token;
 };
 
 /* CLEAN UP DATABASE */
-export const cleanUpUser = async (callback = undefined) => {
+export const cleanUpUser = async (callback?: Function) => {
   await User.deleteMany({}).exec();
   return callback ? callback() : Promise.resolve();
 };
 
-export const cleanUpArticle = async (callback = undefined) => {
+export const cleanUpArticle = async (callback?: Function) => {
   await Article.deleteMany({}).exec();
   return callback ? callback() : Promise.resolve();
 };
 
-export const cleanUpTag = async (callback = undefined) => {
+export const cleanUpTag = async (callback?: Function) => {
   await Tag.deleteMany({}).exec();
   return callback ? callback() : Promise.resolve();
 };
