@@ -1,3 +1,4 @@
+import { Server } from 'http';
 import request from 'supertest';
 import chai, { assert, expect } from 'chai';
 import chaiString from 'chai-string';
@@ -19,8 +20,8 @@ describe('Article API', () => {
     url: 'https://github.com/clroot/pocket-backend',
     tags: [],
   };
-  let server;
-  let accessTokenCookie;
+  let server: Server;
+  let accessTokenCookie: string;
 
   beforeAll(async (done) => {
     server = await startServer();
@@ -99,7 +100,7 @@ describe('Article API', () => {
   });
 
   describe(`GET ${prefix}/:id는 `, () => {
-    let id;
+    let id: string;
 
     beforeAll(async (done) => {
       const { _id } = await saveArticle(server, accessTokenCookie);
@@ -132,7 +133,7 @@ describe('Article API', () => {
   });
 
   describe(`DELETE ${prefix}/:id는 `, () => {
-    let id;
+    let id: string;
     beforeEach(async (done) => {
       const { _id } = await saveArticle(server, accessTokenCookie);
       id = _id;
@@ -156,7 +157,7 @@ describe('Article API', () => {
         username: 'another',
         password: 'another-password',
       };
-      let anotherAccessToken;
+      let anotherAccessToken: string;
 
       beforeAll(async (done) => {
         await registerUser(anotherUser);
@@ -187,7 +188,7 @@ describe('Article API', () => {
     const updateArticle = {
       tags: ['sampleTag'],
     };
-    let id;
+    let id: string;
 
     beforeAll(async (done) => {
       const { _id } = await saveArticle(server, accessTokenCookie);
@@ -217,7 +218,7 @@ describe('Article API', () => {
         username: 'another',
         password: 'another-password',
       };
-      let anotherAccessToken;
+      let anotherAccessToken: string;
 
       beforeAll(async (done) => {
         await registerUser(anotherUser);

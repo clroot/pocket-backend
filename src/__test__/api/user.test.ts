@@ -1,8 +1,10 @@
+import { Server } from 'http';
 import request from 'supertest';
 import chai, { assert } from 'chai';
 import chaiString from 'chai-string';
 import httpStatus from 'http-status';
 import { startServer, closeServer } from '../../main';
+import { IUserDocument } from '../../models';
 import {
   registerUser,
   getAccessTokenCookie,
@@ -18,10 +20,10 @@ chai.use(chaiString);
 
 describe('User API', () => {
   const prefix = '/api/v1/user';
-  let server;
+  let server: Server;
 
-  let user;
-  let accessTokenCookie;
+  let user: IUserDocument;
+  let accessTokenCookie: string;
   const testTagName = 'test1';
   const testNoneExistTagName = 'NoneExistTag';
 
@@ -90,7 +92,7 @@ describe('User API', () => {
 
   describe(`POST ${prefix}/verify는 `, () => {
     const url = `${prefix}/verify`;
-    let token;
+    let token: string;
 
     beforeAll(async (done) => {
       token = await getEmailAuthToken({ userId: user._id });
