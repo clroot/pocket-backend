@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 
-import * as articleCtrl from './article.ctrl.js';
+import * as articleCtrl from './article.ctrl';
 import checkLoggedIn from '../../lib/checkLoggedIn';
 
 const articles = new Router();

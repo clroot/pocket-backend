@@ -11,7 +11,7 @@ import getPort from 'get-port';
 
 import loadVariable from './loadVariable';
 import Database from './database';
-import api from './api/index.js';
+import api from './api';
 import { consumeUser } from './lib/token';
 
 loadVariable();
