@@ -1,22 +1,22 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import loadVariable from './loadVariable';
+import loadVariable from './loadVariable.js';
+
+loadVariable();
+const { MONGO_URI, NODE_ENV } = process.env;
 
 class Database {
-  constructor() {
-    loadVariable();
-    const { MONGO_URI, NODE_ENV } = process.env;
+  mongoUri: String = MONGO_URI || '';
+  NODE_ENV: String = NODE_ENV || 'development';
+  mongooseOpt = {
+    useNewUrlParser: true,
+    useFindAndModify: false,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+  };
+  memoryServer!: MongoMemoryServer;
 
-    this.mongoUri = MONGO_URI;
-    this.NODE_ENV = NODE_ENV;
-    this.mongooseOpt = {
-      useNewUrlParser: true,
-      useFindAndModify: false,
-      useCreateIndex: true,
-      useUnifiedTopology: true,
-    };
-    this.memoryServer = null;
-  }
+  constructor() {}
 
   async connect() {
     if (this.NODE_ENV === 'test') {
