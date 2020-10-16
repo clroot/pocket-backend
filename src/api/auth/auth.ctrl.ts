@@ -1,3 +1,4 @@
+import { Context } from 'koa';
 import Joi from 'joi';
 import httpStatus from 'http-status';
 import { User, EmailAuth } from '../../models';
@@ -7,7 +8,7 @@ import { sendEmail, createAuthEmail } from '../../lib/email';
 /**
  * POST /api/v1/auth/register
  */
-export const register = async (ctx) => {
+export const register = async (ctx: Context) => {
   const schema = Joi.object().keys({
     email: Joi.string().email().required(),
     username: Joi.string().min(2).max(20).required(),
@@ -66,7 +67,7 @@ export const register = async (ctx) => {
 /**
  * POST /api/v1/auth/login
  */
-export const login = async (ctx) => {
+export const login = async (ctx: Context) => {
   const { email, password } = ctx.request.body;
   if (!email || !password) {
     ctx.status = httpStatus.BAD_REQUEST;
@@ -98,7 +99,7 @@ export const login = async (ctx) => {
 /**
  * /api/v1/auth/check
  */
-export const check = async (ctx) => {
+export const check = async (ctx: Context) => {
   const { auth } = ctx.state;
   if (!auth) {
     ctx.status = httpStatus.UNAUTHORIZED;
@@ -111,7 +112,7 @@ export const check = async (ctx) => {
 /**
  * POST /api/v1/auth/logout
  */
-export const logout = async (ctx) => {
+export const logout = async (ctx: Context) => {
   ctx.cookies.set('access_token');
   ctx.status = httpStatus.NO_CONTENT;
 };

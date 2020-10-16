@@ -8,7 +8,7 @@ loadVariable();
 
 const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD } = process.env;
 
-const defaultEmailParams = {
+const defaultEmailParams: IEmailOptions = {
   to: 'clroot@kakao.com',
   title: '(제목없음)',
   body: '(내용없음)',
@@ -42,8 +42,14 @@ export const createAuthEmail = (emailAuthToken: string) => {
   return { title, body };
 };
 
+export interface IEmailOptions {
+  to?: string;
+  title?: string;
+  body?: string;
+  from?: string;
+}
 export const sendEmail = async (
-  payload = { ...defaultEmailParams },
+  payload: IEmailOptions = { ...defaultEmailParams },
   callback?: Function,
 ) => {
   const { to, title, body, from } = { ...defaultEmailParams, ...payload };
