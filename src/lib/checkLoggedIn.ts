@@ -1,5 +1,7 @@
 import httpStatus from 'http-status';
-const checkLoggedIn = (ctx, next) => {
+import { Context } from 'koa';
+
+const checkLoggedIn = (ctx: Context, next: Function) => {
   if (!ctx.state.auth) {
     ctx.status = httpStatus.UNAUTHORIZED;
     return;

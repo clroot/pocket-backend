@@ -6,6 +6,8 @@ import { getAppHost } from './utils';
 
 loadVariable();
 
+const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD } = process.env;
+
 const defaultEmailParams = {
   to: 'clroot@kakao.com',
   title: '(제목없음)',
@@ -15,16 +17,16 @@ const defaultEmailParams = {
 
 const mailTransporter = nodeMailer.createTransport(
   smtpTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    host: SMTP_HOST,
+    port: parseInt(SMTP_PORT || '25'),
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
+      user: SMTP_USER,
+      pass: SMTP_PASSWORD,
     },
   }),
 );
 
-export const createAuthEmail = (emailAuthToken) => {
+export const createAuthEmail = (emailAuthToken: string) => {
   const host = getAppHost();
   const title = `Pocket에 오신 것을 환영합니다! `;
   const body = `
@@ -42,7 +44,7 @@ export const createAuthEmail = (emailAuthToken) => {
 
 export const sendEmail = async (
   payload = { ...defaultEmailParams },
-  callback = undefined,
+  callback?: Function,
 ) => {
   const { to, title, body, from } = { ...defaultEmailParams, ...payload };
 
@@ -55,12 +57,8 @@ export const sendEmail = async (
     });
   } catch (error) {
     console.error(error);
-    return callback
-      ? callback(error, undefined)
-      : Promise.reject({ status: false, error });
+    return callback ? callback(error, undefined) : { status: false, error };
   }
 
-  return callback
-    ? callback(undefined, { status: true })
-    : Promise.resolve({ status: true });
+  return callback ? callback(undefined, { status: true }) : { status: true };
 };
