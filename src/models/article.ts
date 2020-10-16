@@ -2,7 +2,7 @@ import { Schema, Types, Document, Model, model } from 'mongoose';
 import axios from 'axios';
 import ogs from 'open-graph-scraper';
 import cheerio from 'cheerio';
-import Tag, { ITagParameter } from './tag';
+import { Tag, ITag, ITagDocument, ITagParameter } from './index';
 
 const ArticleSchema = new Schema({
   url: String,
@@ -29,7 +29,7 @@ export interface IArticle {
     description: string;
     img: string;
   };
-  tags: Types.ObjectId[];
+  tags: (Types.ObjectId | ITag)[];
   user: Types.ObjectId;
   createAt: Date;
 }
@@ -56,7 +56,7 @@ ArticleSchema.methods.createMetaData = async function () {
   }
 };
 
-ArticleSchema.methods.updateTagData = async function (tags) {
+ArticleSchema.methods.updateTagData = async function (tags: string[]) {
   const { user } = this;
 
   const newTags = await Promise.all(
@@ -74,9 +74,17 @@ ArticleSchema.methods.updateTagData = async function (tags) {
   await this.save();
 };
 
-export interface IArticleDocument extends IArticle, Document {
+interface IArticleDocumentBase extends IArticle, Document {
   createMetaData(): Promise<void>;
   updateTagData(tags: ITagParameter[]): Promise<void>;
+}
+
+export interface IArticleDocument extends IArticleDocumentBase {
+  tags: ITagDocument['_id'][];
+}
+
+export interface IPopulatedArticleDocument extends IArticleDocumentBase {
+  tags: ITag[];
 }
 
 export interface IArticleModel extends Model<IArticleDocument> {}
