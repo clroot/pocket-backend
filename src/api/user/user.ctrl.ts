@@ -1,11 +1,14 @@
+import { Context } from 'koa';
 import httpStatus from 'http-status';
 import { encodeBase64 } from '../../lib/utils';
 import { User, EmailAuth, Tag } from '../../models';
+import { IUserDocument } from '../../models/user';
+import { IEmailAuthDocument } from '../../models/emailAuth';
 
 /**
  * /api/v1/user/tags
  */
-export const userTagList = async (ctx) => {
+export const userTagList = async (ctx: Context) => {
   const { user } = ctx.state.auth;
 
   try {
@@ -20,7 +23,7 @@ export const userTagList = async (ctx) => {
 /**
  * DELETE /api/v1/user/tags/:id
  */
-export const userTagRemove = async (ctx) => {
+export const userTagRemove = async (ctx: Context) => {
   const { user } = ctx.state.auth;
   const { name } = ctx.params;
 
@@ -42,15 +45,17 @@ export const userTagRemove = async (ctx) => {
 /**
  * POST /api/v1/user/verify
  */
-export const verify = async (ctx) => {
+export const verify = async (ctx: Context) => {
   const { token } = ctx.request.body;
   const { auth } = ctx.state;
   const type = 'email-verify';
   const response = (status) => ({ type, status });
 
   try {
-    const user = await User.findById(auth.user);
-    const emailAuth = await EmailAuth.findOne({ token });
+    const user = (await User.findById(auth.user)) as IUserDocument;
+    const emailAuth = (await EmailAuth.findOne({
+      token,
+    })) as IEmailAuthDocument;
 
     if (user.isVerified) {
       ctx.body = response('already-verified');
@@ -65,8 +70,7 @@ export const verify = async (ctx) => {
       return;
     }
     await emailAuth.remove();
-    user.setVerified();
-    await user.updateOne().exec();
+    await user.setVerified();
 
     ctx.body = response('success');
   } catch (error) {
