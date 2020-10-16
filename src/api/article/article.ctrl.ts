@@ -2,11 +2,10 @@ import { Types } from 'mongoose';
 import { Context } from 'koa';
 import Joi from 'joi';
 import httpStatus from 'http-status';
-import { Article, Tag } from '../../models';
-import { IArticleDocument } from '../../models/article';
+import { Article, Tag, IArticleDocument, ITag } from '../../models';
 
 const serializeArticle = (article: IArticleDocument | IArticleDocument[]) => {
-  const extractTags = (tag) => tag.name;
+  const extractTags = (tag: ITag) => tag.name;
   if (Array.isArray(article)) {
     return article.map((iter) => ({
       ...iter,

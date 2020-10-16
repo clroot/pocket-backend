@@ -24,4 +24,10 @@ export {
   ITagModel,
   ITagParameter,
 } from './tag';
-export { default as User, IUser, IUserDocument, IUserModel } from './user';
+export {
+  default as User,
+  IUser,
+  IUserDocument,
+  IUserModel,
+  IUserParameter,
+} from './user';

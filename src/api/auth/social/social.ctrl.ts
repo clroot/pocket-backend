@@ -32,7 +32,10 @@ export const register = async (ctx: Context) => {
 
   let decoded;
   try {
-    decoded = decodeToken(registerToken);
+    decoded = decodeToken(registerToken) as {
+      socialId: string;
+      provider: string;
+    };
   } catch (error) {
     console.error(error);
     ctx.status = httpStatus.UNAUTHORIZED;
@@ -98,7 +101,7 @@ export const kakaoLogin = (ctx: Context) => {
 /**
  * /api/v1/auth/social/callback/kakao
  */
-export const kakaoCallback = async (ctx, next) => {
+export const kakaoCallback = async (ctx: Context, next: Function) => {
   const { code: authorizeCode } = ctx.query;
   const { KAKAO_REST_API_KEY } = process.env;
   const host = getApiHost();

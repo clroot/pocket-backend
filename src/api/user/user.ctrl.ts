@@ -49,7 +49,7 @@ export const verify = async (ctx: Context) => {
   const { token } = ctx.request.body;
   const { auth } = ctx.state;
   const type = 'email-verify';
-  const response = (status) => ({ type, status });
+  const response = (status: string) => ({ type, status });
 
   try {
     const user = (await User.findById(auth.user)) as IUserDocument;

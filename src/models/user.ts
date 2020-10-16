@@ -29,12 +29,12 @@ export interface IUser {
   isVerified: boolean;
 }
 
-UserSchema.methods.setPassword = async function (password) {
+UserSchema.methods.setPassword = async function (password: string) {
   const hash = await bcrypt.hash(password, 10);
   this.hashedPassword = hash;
 };
 
-UserSchema.methods.checkPassword = async function (password) {
+UserSchema.methods.checkPassword = async function (password: string) {
   const result = await bcrypt.compare(password, this.hashedPassword);
   return result;
 };
@@ -62,11 +62,18 @@ export interface IUserDocument extends IUser, Document {
   setVerified(): Promise<void>;
 }
 
-UserSchema.statics.findByEmail = function (email) {
+export interface IUserParameter {
+  email: string;
+  username: string;
+}
+UserSchema.statics.findByEmail = function (email: IUserParameter['email']) {
   return this.findOne({ email });
 };
 
-UserSchema.statics.checkDuplication = async function ({ email, username }) {
+UserSchema.statics.checkDuplication = async function ({
+  email,
+  username,
+}: IUserParameter) {
   const check = await this.findOne({ $or: [{ email }, { username }] });
   return !!check;
 };

@@ -24,8 +24,8 @@ export interface ISocialAccount {
 export interface ISocialAccountDocument extends ISocialAccount, Document {}
 
 SocialAccountSchema.statics.findByOauthInfo = async function (
-  provider,
-  socialId,
+  provider: ISocialAccount['provider'],
+  socialId: ISocialAccount['socialId'],
 ) {
   return await this.findOne({ provider, socialId });
 };

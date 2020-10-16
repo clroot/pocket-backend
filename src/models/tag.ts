@@ -16,7 +16,10 @@ export interface ITag {
 
 export interface ITagDocument extends ITag, Document {}
 
-TagSchema.statics.findOrCreate = async function ({ user, name }) {
+TagSchema.statics.findOrCreate = async function ({
+  user,
+  name,
+}: ITagParameter) {
   let tag = await this.findOne({ name, user });
   if (!tag) {
     tag = await this.create({ name, user });
@@ -24,12 +27,12 @@ TagSchema.statics.findOrCreate = async function ({ user, name }) {
   return tag;
 };
 
-TagSchema.statics.getIdByName = async function ({ user, name }) {
+TagSchema.statics.getIdByName = async function ({ user, name }: ITagParameter) {
   let tag = await this.findOne({ name, user });
   return tag.id;
 };
 
-TagSchema.statics.findByUser = async function (user) {
+TagSchema.statics.findByUser = async function (user: ITagParameter['user']) {
   return await this.find({ user }).select('name -_id');
 };
 
