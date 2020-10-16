@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { Context } from 'koa';
-import { User } from '../models/index.js';
+import { User } from '../models';
 
 const secretKey = process.env.JWT_SECRET || 'JWT_SECRET';
 
@@ -50,7 +50,10 @@ export const consumeUser = async (ctx: Context, next: Function) => {
 
     if (decoded.exp - now < 60 * 60 * 24 * 3.5) {
       const user = await User.findById(decoded._id);
-      const token = user.generateToken();
+      if (!user) {
+        throw new Error('Can not find user at consumeUser.');
+      }
+      const token = user.generateToken() || '';
 
       setTokenCookie(ctx, token);
     }

@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose';
+import { Document, model, Model, Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { generateToken } from '../lib/token';
 
@@ -21,6 +21,13 @@ const UserSchema = new Schema({
     default: false,
   },
 });
+
+export interface IUser {
+  email: string;
+  username: string;
+  hashedPassword: string;
+  isVerified: boolean;
+}
 
 UserSchema.methods.setPassword = async function (password) {
   const hash = await bcrypt.hash(password, 10);
@@ -47,6 +54,14 @@ UserSchema.methods.setVerified = async function () {
   await this.save();
 };
 
+export interface IUserDocument extends IUser, Document {
+  setPassword(password: string): Promise<void>;
+  checkPassword(password: string): Promise<boolean>;
+  serialize(): Object;
+  generateToken(): string;
+  setVerified(): Promise<void>;
+}
+
 UserSchema.statics.findByEmail = function (email) {
   return this.findOne({ email });
 };
@@ -56,6 +71,15 @@ UserSchema.statics.checkDuplication = async function ({ email, username }) {
   return !!check;
 };
 
-const User = mongoose.model('User', UserSchema);
+export interface IUserModel extends Model<IUserDocument> {
+  findByEmail(email: string): Promise<IUserDocument>;
+  checkDuplication({
+    email,
+    username,
+  }: {
+    email: string;
+    username: string;
+  }): Promise<boolean>;
+}
 
-export default User;
+export default model<IUserDocument, IUserModel>('User', UserSchema);
