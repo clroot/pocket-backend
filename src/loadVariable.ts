@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 
-const loadVariable = () => {
+const loadVariable: Function = () => {
   dotenv.config();
 };
 

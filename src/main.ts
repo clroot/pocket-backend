@@ -1,4 +1,4 @@
-require('dotenv').config();
+//require('dotenv').config();
 import Koa, { Context } from 'koa';
 import { Server } from 'http';
 import Router from 'koa-router';
@@ -9,10 +9,12 @@ import path from 'path';
 import send from 'koa-send';
 import getPort from 'get-port';
 
+import loadVariable from './loadVariable';
 import Database from './database';
 import api from './api/index.js';
-import { consumeUser } from './lib/token.js';
+import { consumeUser } from './lib/token';
 
+loadVariable();
 const { PORT } = process.env;
 
 const app = new Koa();
@@ -35,7 +37,7 @@ app.use(async (ctx: Context) => {
 });
 
 export const startServer = async (
-  port: Number = parseInt(PORT || '4000'),
+  port: number = parseInt(PORT || '4000'),
   callback?: Function,
 ) => {
   if (process.env.NODE_ENV === 'test') {

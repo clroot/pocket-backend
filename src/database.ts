@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import loadVariable from './loadVariable.js';
+import loadVariable from './loadVariable';
 
 loadVariable();
 const { MONGO_URI, NODE_ENV } = process.env;

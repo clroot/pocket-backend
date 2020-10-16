@@ -1,37 +1,45 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/user';
+import { Context } from 'koa';
+import { User } from '../models/index.js';
 
 const secretKey = process.env.JWT_SECRET || 'JWT_SECRET';
 
-export const generateToken = (payload, options = { expiresIn: '7d' }) => {
+interface IAuthInfo {
+  _id: string;
+  username: string;
+  exp: any;
+}
+
+export const generateToken = (
+  payload: IAuthInfo | Object,
+  options = { expiresIn: '7d' },
+) => {
   const jwtOptions = {
     issuer: 'pocket.clroot.io',
-    expiresIn: '7d',
     ...options,
   };
 
   return jwt.sign(payload, secretKey, jwtOptions);
 };
 
-export const decodeToken = (token) => {
+export const decodeToken = (token: string): IAuthInfo | Object => {
   return jwt.verify(token, secretKey);
 };
 
 export const setTokenCookie = (
-  ctx,
-  token,
+  ctx: Context,
+  token: string,
   options = { maxAge: 1000 * 60 * 60 * 24 * 7, httpOnly: true },
 ) => {
   ctx.cookies.set('access_token', token, options);
 };
 
-export const consumeUser = async (ctx, next) => {
-  //TODO: access_token, refresh_token 분리
+export const consumeUser = async (ctx: Context, next: Function) => {
   const token = ctx.cookies.get('access_token');
   if (!token) return next();
 
   try {
-    const decoded = decodeToken(token);
+    const decoded = decodeToken(token) as IAuthInfo;
 
     ctx.state.auth = {
       user: decoded._id,
