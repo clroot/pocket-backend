@@ -1,9 +1,14 @@
 import { Server } from 'http';
+import { Model } from 'mongoose';
 import request from 'supertest';
 import httpStatus from 'http-status';
 import { generateToken } from '../../lib/token';
-import { Article, EmailAuth, User, Tag } from '../../models';
-import { IEmailAuthDocument } from '../../models/emailAuth';
+import {
+  EmailAuth,
+  User,
+  IArticleDocument,
+  IEmailAuthDocument,
+} from '../../models';
 
 /* AUTH */
 interface IUserPayload {
@@ -32,7 +37,8 @@ export const registerUser = async (
   });
   await emailAuth.save();
 
-  return callback ? callback(record) : record;
+  callback && callback(undefined, record);
+  return record;
 };
 
 export const removeUser = async (
@@ -43,7 +49,8 @@ export const removeUser = async (
   const user = await User.findByEmail(email);
   await User.deleteOne({ _id: user.id }).exec();
 
-  return callback ? callback() : Promise.resolve();
+  callback && callback();
+  return;
 };
 
 export const getAccessTokenCookie = async (
@@ -51,7 +58,7 @@ export const getAccessTokenCookie = async (
   payload: IUserPayload = { ...testUserInfo },
   callback?: Function,
 ) => {
-  let accessTokenCookie;
+  let accessTokenCookie: string = '';
   try {
     await request(server)
       .post('/api/v1/auth/login')
@@ -64,7 +71,8 @@ export const getAccessTokenCookie = async (
     console.error(error);
   }
 
-  return callback ? callback(accessTokenCookie) : accessTokenCookie;
+  callback && callback(undefined, accessTokenCookie);
+  return accessTokenCookie;
 };
 
 /* ARTICLE */
@@ -83,12 +91,14 @@ export const saveArticle = async (
   payload: IArticlePayload = { ...testArticle },
   callback?: Function,
 ) => {
-  const { body: article } = await request(server)
+  const { body: article }: { body: IArticleDocument } = await request(server)
     .post('/api/v1/articles')
     .send(payload)
     .set('Cookie', accessTokenCookie)
     .expect(httpStatus.CREATED);
-  return callback ? callback(article) : Promise.resolve(article);
+
+  callback && callback(undefined, article);
+  return article;
 };
 
 export const updateArticle = async (
@@ -98,12 +108,14 @@ export const updateArticle = async (
   payload: IArticlePayload = { tags: [] },
   callback?: Function,
 ) => {
-  const { body: article } = await request(server)
+  const { body: article }: { body: IArticleDocument } = await request(server)
     .patch(`/api/v1/articles/${articleId}`)
     .send(payload)
     .set('Cookie', accessTokenCookie)
     .expect(httpStatus.OK);
-  return callback ? callback(article) : Promise.resolve(article);
+
+  callback && callback(undefined, article);
+  return article;
 };
 
 /* USER */
@@ -117,21 +129,18 @@ export const getEmailAuthToken = async (
   })) as IEmailAuthDocument;
   const token = emailAuth.token;
 
-  return callback ? callback(token) : token;
+  callback && callback(undefined, token);
+  return token;
 };
 
 /* CLEAN UP DATABASE */
-export const cleanUpUser = async (callback?: Function) => {
-  await User.deleteMany({}).exec();
-  return callback ? callback() : Promise.resolve();
-};
-
-export const cleanUpArticle = async (callback?: Function) => {
-  await Article.deleteMany({}).exec();
-  return callback ? callback() : Promise.resolve();
-};
-
-export const cleanUpTag = async (callback?: Function) => {
-  await Tag.deleteMany({}).exec();
-  return callback ? callback() : Promise.resolve();
+export const cleanUp = async (model: Model<any, any>, callback?: Function) => {
+  try {
+    await model.deleteMany({}).exec();
+  } catch (error) {
+    callback && callback(error);
+    throw error;
+  }
+  callback && callback();
+  return;
 };

@@ -9,9 +9,10 @@ import {
   testUserInfo,
   registerUser,
   getAccessTokenCookie,
-  cleanUpUser,
+  cleanUp,
 } from './api-helper';
 import * as Email from '../../lib/email';
+import { User } from '../../models';
 
 chai.use(chaiString);
 
@@ -38,12 +39,12 @@ describe('Authentication API', () => {
     });
     afterAll((done) => {
       stub.restore();
-      cleanUpUser(done);
+      cleanUp(User, done);
     });
 
     describe('성공시 ', () => {
       afterAll(async (done) => {
-        await cleanUpUser();
+        await cleanUp(User);
         done();
       });
 
@@ -100,7 +101,7 @@ describe('Authentication API', () => {
     });
 
     afterAll(async (done) => {
-      await cleanUpUser();
+      await cleanUp(User);
       done();
     });
 
@@ -150,7 +151,7 @@ describe('Authentication API', () => {
     });
 
     afterAll((done) => {
-      cleanUpUser(done);
+      cleanUp(User, done);
     });
 
     describe('성공시 ', () => {

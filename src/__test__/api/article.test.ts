@@ -8,11 +8,11 @@ import {
   registerUser,
   removeUser,
   getAccessTokenCookie,
-  cleanUpUser,
-  cleanUpArticle,
   saveArticle,
+  cleanUp,
 } from './api-helper';
 import { generateObjectId } from '../test-utils';
+import { Article, User } from '../../models';
 
 describe('Article API', () => {
   const prefix = '/api/v1/articles';
@@ -31,8 +31,8 @@ describe('Article API', () => {
   });
 
   afterAll(async (done) => {
-    await cleanUpArticle();
-    await cleanUpUser();
+    await cleanUp(Article);
+    await cleanUp(User);
     await closeServer(server);
     done();
   });
@@ -67,7 +67,7 @@ describe('Article API', () => {
     const url = prefix;
 
     afterAll((done) => {
-      cleanUpArticle(done);
+      cleanUp(Article, done);
     });
 
     describe('성공시 ', () => {
@@ -108,7 +108,7 @@ describe('Article API', () => {
       done();
     });
     afterAll((done) => {
-      cleanUpArticle(done);
+      cleanUp(Article, done);
     });
 
     describe('성공시 ', () => {
@@ -140,7 +140,7 @@ describe('Article API', () => {
       done();
     });
     afterEach((done) => {
-      cleanUpArticle(done);
+      cleanUp(Article, done);
     });
 
     describe('성공시 ', () => {
@@ -197,7 +197,7 @@ describe('Article API', () => {
     });
 
     afterAll((done) => {
-      cleanUpArticle(done);
+      cleanUp(Article, done);
     });
 
     describe('성공시 ', () => {
