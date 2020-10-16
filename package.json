@@ -1,11 +1,11 @@
 {
   "name": "pocket-backend",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "cross-env NODE_ENV=production pm2-runtime src -i -1 --node-args='-r esm'",
-    "start:dev": "cross-env NODE_ENV=development ts-node-dev --watch src/ --trace-deprecation -r esm src/index.ts",
+    "start": "pm2 install typescript; cross-env NODE_ENV=production pm2-runtime -i -1 src/index.ts",
+    "start:dev": "cross-env NODE_ENV=development nodemon --watch src/ --exec 'ts-node' src/index.ts",
     "test": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit --runInBand --silent",
     "test:watch": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit --watch --silent"
   },
