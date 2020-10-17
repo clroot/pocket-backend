@@ -1,13 +1,14 @@
 #!/bin/bash
 DOCKER_APP_NAME=pocket-backend
+REPOSITORIES=/home/ec2-user/app/pocket
 
 EXIST_BLUE=$(docker ps -a | grep ${DOCKER_APP_NAME}-blue)
 
 if [ -z "$EXIST_BLUE" ]; then
 	echo "blue is available"
 	docker run -d --name ${DOCKER_APP_NAME}-blue \
-		-v /home/ubuntu/app/pocket/backend:/deploy/node-app \
-		-v /home/ubuntu/app/pocket/frontend:/deploy/frontend/build \
+		-v ${REPOSITORIES}/backend:/deploy/node-app \
+		-v ${REPOSITORIES}/frontend:/deploy/frontend/build \
 		-p 4001:4000 \
 		--network=clroot \
 		--restart=always \
@@ -25,8 +26,8 @@ if [ -z "$EXIST_BLUE" ]; then
 else
 	echo "green is available"
 	docker run -d --name ${DOCKER_APP_NAME}-green \
-		-v /home/ubuntu/app/pocket/backend:/deploy/node-app \
-		-v /home/ubuntu/app/pocket/frontend:/deploy/frontend/build \
+		-v ${REPOSITORIES}/backend:/deploy/node-app \
+		-v ${REPOSITORIES}/frontend:/deploy/frontend/build \
 		-p 4002:4000 \
 		--network=clroot \
 		--restart=always \
