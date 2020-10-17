@@ -10,7 +10,6 @@ if [ -z "$EXIST_BLUE" ]; then
 		-v ${REPOSITORIES}/backend:/deploy/node-app \
 		-v ${REPOSITORIES}/frontend:/deploy/frontend/build \
 		-p 4001:4000 \
-		--network=clroot \
 		--restart=always \
 		clroot/node-app
 	sleep 5
@@ -29,7 +28,6 @@ else
 		-v ${REPOSITORIES}/backend:/deploy/node-app \
 		-v ${REPOSITORIES}/frontend:/deploy/frontend/build \
 		-p 4002:4000 \
-		--network=clroot \
 		--restart=always \
 		clroot/node-app
 	sleep 5
