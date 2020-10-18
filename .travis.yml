@@ -10,8 +10,8 @@ notifications:
       - abcdkh1209@icloud.com
 before_deploy:
   - yarn build
-  - mkdir -p before-deploy/dist
-  - mv dist/* before-deploy/dist
+  - mkdir -p before-deploy/
+  - cp -r dist before-deploy
   - cp scripts/*.sh before-deploy
   - cp package.json before-deploy
   - cp appspec.yml before-deploy
