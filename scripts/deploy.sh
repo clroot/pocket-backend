@@ -3,7 +3,7 @@ DOCKER_APP_NAME=pocket-backend
 REPOSITORIES=/home/ec2-user/app/pocket
 
 EXIST_DOCKER_BRIDGE_NETWORK=$(docker network ls | grep clroot)
-if [ -z "$EXIST_DOCKER_BRIDGE_NETWORK"]; then
+if [ -z "$EXIST_DOCKER_BRIDGE_NETWORK" ]; then
 	echo "create network bridge driver..."
 	docker network create -d bridge clroot
 fi
