@@ -2,10 +2,10 @@
 DOCKER_APP_NAME=pocket-backend
 REPOSITORIES=/home/ec2-user/app/pocket
 
-EXIST_DOCKER_BRIDGE_NETWORK=$(docker network ls | grep clroot)
+EXIST_DOCKER_BRIDGE_NETWORK=$(docker network ls | grep pocket)
 if [ -z "$EXIST_DOCKER_BRIDGE_NETWORK" ]; then
 	echo "create network bridge driver..."
-	docker network create -d bridge clroot
+	docker network create -d bridge pocket
 fi
 
 
@@ -18,7 +18,7 @@ if [ -z "$EXIST_BLUE" ]; then
 		-v ${REPOSITORIES}/frontend:/deploy/frontend/build \
 		-p 4001:4000 \
 		--restart=always \
-		--network=clroot \
+		--network=pocket \
 		clroot/node-app
 	sleep 5
 
@@ -37,7 +37,7 @@ else
 		-v ${REPOSITORIES}/frontend:/deploy/frontend/build \
 		-p 4002:4000 \
 		--restart=always \
-		--network=clroot \
+		--network=pocket \
 		clroot/node-app
 	sleep 5
 
