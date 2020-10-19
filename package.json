@@ -8,7 +8,8 @@
     "start:dev": "cross-env NODE_ENV=development nodemon --watch src/ --exec 'ts-node' src/index.ts",
     "build":"tsc",
     "test": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit --runInBand --silent",
-    "test:watch": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit --watch --silent"
+    "test:watch": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit --watch --silent",
+    "deploy":"yarn build; sh ./scripts/deploy.sh"
   },
   "dependencies": {
     "axios": "^0.19.2",
