@@ -14,6 +14,7 @@ before_deploy:
   - cp -r dist before-deploy
   - cp -r scripts before-deploy
   - cp package.json before-deploy
+  - cp yarn.lock before-deploy
   - cp appspec.yml before-deploy
   - cp tsconfig.json before_deploy
   - cd before-deploy && zip -r before-deploy *
