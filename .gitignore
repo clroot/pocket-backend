@@ -117,4 +117,4 @@ dist
 
 .idea
 
-scripts/deploy-test.sh
+scripts/test-deploy.sh

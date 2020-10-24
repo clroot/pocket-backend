@@ -15,6 +15,7 @@ if [ -z "$EXIST_BLUE" ]; then
 	echo "blue is available"
 	docker run -d --name ${DOCKER_APP_NAME}-blue \
 		-v ${REPOSITORIES}/backend:/deploy/node-app \
+		-v ${REPOSITORIES}/backend/.env:/deploy/node-app/.env \
 		-v ${REPOSITORIES}/frontend:/deploy/frontend/build \
 		-p 4001:4000 \
 		--restart=always \
@@ -34,6 +35,7 @@ else
 	echo "green is available"
 	docker run -d --name ${DOCKER_APP_NAME}-green \
 		-v ${REPOSITORIES}/backend:/deploy/node-app \
+		-v ${REPOSITORIES}/backend/.env:/deploy/node-app/.env \
 		-v ${REPOSITORIES}/frontend:/deploy/frontend/build \
 		-p 4002:4000 \
 		--restart=always \
