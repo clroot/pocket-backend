@@ -6,10 +6,9 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production pm2-runtime dist -i -1",
     "start:dev": "cross-env NODE_ENV=development nodemon --watch src/ --exec 'ts-node' src/index.ts",
-    "build":"tsc",
+    "build": "tsc",
     "test": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit --runInBand --silent",
-    "test:watch": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit --watch --silent",
-    "deploy":"yarn build; sh ./scripts/deploy.sh"
+    "test:watch": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit --watch --silent"
   },
   "dependencies": {
     "axios": "^0.19.2",
