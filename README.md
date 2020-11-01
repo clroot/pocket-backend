@@ -22,4 +22,4 @@ node.js의 Koa와 react를 사용하여 [pocket](https://app.getpocket.com/)을 
   - AWS CodeDeploy
   - docker
 
-## [후기](https://clroot.io/posts/2020-10-after-pocket-project)
+## [후기](https://clroot.io/1)
