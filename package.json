@@ -27,7 +27,7 @@
     "koa-router": "^9.0.1",
     "koa-static": "^5.0.0",
     "mongoose": "^5.9.18",
-    "nodemailer": "^6.4.13",
+    "nodemailer": "^6.4.16",
     "nodemailer-smtp-transport": "^2.7.4",
     "open-graph-scraper": "^4.1.1",
     "pm2": "^4.4.1",
