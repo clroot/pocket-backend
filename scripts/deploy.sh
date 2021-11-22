@@ -21,7 +21,6 @@ docker run -d --name ${DOCKER_APP_NAME}-${RUN_TARGET} \
   -v $HOST_DIR/$BACK_END_REPO:/deploy/node-app \
   -v $HOST_DIR/$FRONT_END_REPO:/deploy/frontend/build \
   -p $PORT:4000 \
-  --restart=always \
   clroot/node-app
 sleep 5
 echo "$RUN_TARGET is up"
