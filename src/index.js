@@ -1,7 +1,3 @@
-/* eslint-disable no-global-assign */
+import { startServer } from './main';
 
-require = require('esm')(module);
-const app = require('./main.js');
-
-app.startServer();
-module.exports = app;
+startServer();
