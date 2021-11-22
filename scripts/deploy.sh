@@ -1,44 +1,38 @@
 #!/bin/bash
+HOST_DIR=/home/ubuntu/app/pocket
+BACK_END_REPO=pocket-backend
+FRONT_END_REPO=pocket-frontend
 DOCKER_APP_NAME=pocket-backend
 
 EXIST_BLUE=$(docker ps -a | grep ${DOCKER_APP_NAME}-blue)
 
 if [ -z "$EXIST_BLUE" ]; then
-	echo "blue is available"
-	docker run -d --name ${DOCKER_APP_NAME}-blue \
-		-v /home/ubuntu/app/pocket/backend:/deploy/node-app \
-		-v /home/ubuntu/app/pocket/frontend:/deploy/frontend/build \
-		-p 4001:4000 \
-		--network=clroot \
-		--restart=always \
-		clroot/node-app
-	sleep 5
-
-	echo "set \$service_url http://127.0.0.1:4001;" | sudo tee /etc/nginx/conf.d/pocket-url.inc 
-	sudo service nginx reload
-	EXIST_GREEN=$(docker ps -a | grep ${DOCKER_APP_NAME}-green)
-
-	if [ "$EXIST_GREEN" ]; then
-		echo "green is running. stoping green...."
-		docker rm -f ${DOCKER_APP_NAME}-green
-	fi
+  RUN_TARGET=blue
+  REMOVE_TARGET=green
+  PORT=4001
 else
-	echo "green is available"
-	docker run -d --name ${DOCKER_APP_NAME}-green \
-		-v /home/ubuntu/app/pocket/backend:/deploy/node-app \
-		-v /home/ubuntu/app/pocket/frontend:/deploy/frontend/build \
-		-p 4002:4000 \
-		--network=clroot \
-		--restart=always \
-		clroot/node-app
-	sleep 5
-
-	echo "set \$service_url http://127.0.0.1:4002;" | sudo tee /etc/nginx/conf.d/pocket-url.inc 
-	sudo service nginx reload
-	EXIST_BLUE=$(docker ps -a | grep ${DOCKER_APP_NAME}-blue)
-
-	if [ "$EXIST_BLUE" ]; then
-		echo "blue is running. stoping blue...."
-		docker rm -f ${DOCKER_APP_NAME}-blue
-	fi
+  RUN_TARGET=green
+  REMOVE_TARGET=blue
+  PORT=4002
 fi
+
+echo "$RUN_TARGET is available"
+docker run -d --name ${DOCKER_APP_NAME}-${RUN_TARGET} \
+  -v $HOST_DIR/$BACK_END_REPO:/deploy/node-app \
+  -v $HOST_DIR/$FRONT_END_REPO:/deploy/frontend/build \
+  -p $PORT:4000 \
+  --restart=always \
+  clroot/node-app
+sleep 5
+echo "$RUN_TARGET is up"
+
+echo "set \$service_url http://127.0.0.1:$PORT;" | sudo tee /etc/nginx/conf.d/pocket-url.inc
+sudo service nginx reload
+EXIST_REMOVE_TARGET=$(docker ps -a | grep ${DOCKER_APP_NAME}-${REMOVE_TARGET})
+
+if [ "$EXIST_REMOVE_TARGET" ]; then
+  echo "stoping previous host $REMOVE_TARGET...."
+  docker rm -f ${DOCKER_APP_NAME}-${REMOVE_TARGET}
+fi
+
+echo "done"
