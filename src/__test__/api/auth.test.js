@@ -3,7 +3,7 @@ import chai, { assert, expect } from 'chai';
 import chaiString from 'chai-string';
 import sinon from 'sinon';
 import httpStatus from 'http-status';
-import { startServer, closeServer } from '../../main';
+import { startServer, closeServer } from '../../';
 import {
   testUserInfo,
   registerUser,

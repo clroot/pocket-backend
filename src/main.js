@@ -1,25 +1,18 @@
-import dotenv from 'dotenv';
 import Koa from 'koa';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
 import logger from 'koa-logger';
 import serve from 'koa-static';
-import path from 'path';
 import send from 'koa-send';
-import getPort from 'get-port';
-
-import Database from './database';
+import path from 'path';
 import api from './api';
 import { consumeUser } from './lib/token';
-
-dotenv.config();
 
 const { PORT } = process.env;
 
 const app = new Koa();
 const router = new Router();
 
-Database.connect();
 router.use('/api/v1', api.routes());
 
 app.use(logger());
@@ -35,24 +28,5 @@ app.use(async (ctx) => {
   }
 });
 
-export const startServer = async (
-  port = PORT || 4000,
-  callback = undefined,
-) => {
-  if (process.env.NODE_ENV === 'test') {
-    port = await getPort({ port: getPort.makeRange(4001, 5000) });
-  }
-
-  const server = await app.listen(port, () => {
-    console.log(`Listening to port ${port}...`);
-  });
-
-  return callback ? callback(server) : Promise.resolve(server);
-};
-
-export const closeServer = async (server) => {
-  server.close();
-  await Database.closeConnect();
-};
 
 export default app;

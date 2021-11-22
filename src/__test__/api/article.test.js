@@ -2,7 +2,7 @@ import request from 'supertest';
 import chai, { assert, expect } from 'chai';
 import chaiString from 'chai-string';
 import httpStatus from 'http-status';
-import { startServer, closeServer } from '../../main';
+import { startServer, closeServer } from '../../';
 import {
   registerUser,
   removeUser,
