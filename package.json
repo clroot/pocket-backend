@@ -6,6 +6,8 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production pm2-runtime src -i -1 --node-args='-r esm'",
     "start:dev": "cross-env NODE_ENV=development nodemon --exec babel-node src/index.js --watch src/ --trace-deprecation",
+    "start:pm2": "cross-env NODE_ENV=production pm2 start src -i -1 --node-args='-r esm'",
+    "stop:pm2:dev": "cross-env NODE_ENV=development pm2 kill",
     "test": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit --silent",
     "test:dev": "cross-env NODE_ENV=test jest --passWithNoTests --forceExit",
     "test:watch": "yarn test:dev --watch --silent"
