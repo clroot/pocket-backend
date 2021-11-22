@@ -1,0 +1,13 @@
+# node_modules
+node_modules/
+# IDEs & Git
+.vscode/
+.idea/
+.git/
+.gitignore
+# Etc & Configs
+scripts/
+appspec.yml
+README.md
+.env.example
+.travis.yml
