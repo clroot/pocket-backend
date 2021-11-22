@@ -1,7 +1,7 @@
 import request from 'supertest';
 import httpStatus from 'http-status';
 import { generateToken } from '../../lib/token';
-import { Article, EmailAuth, User, Tag } from '../../models';
+import { Article, EmailAuth, Tag, User } from '../../models';
 
 /* AUTH */
 export const testUserInfo = {
@@ -25,7 +25,7 @@ export const registerUser = async (
   });
   await emailAuth.save();
 
-  return callback ? callback(record) : record;
+  return callback ? callback(record) : Promise.resolve(record);
 };
 
 export const removeUser = async (
@@ -106,7 +106,7 @@ export const getEmailAuthToken = async (
   const emailAuth = await EmailAuth.findOne({ user: userId });
   const token = emailAuth.token;
 
-  return callback ? callback(token) : token;
+  return callback ? callback(token) : Promise.resolve(token);
 };
 
 /* CLEAN UP DATABASE */

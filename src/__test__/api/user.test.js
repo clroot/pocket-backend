@@ -2,16 +2,16 @@ import request from 'supertest';
 import chai, { assert } from 'chai';
 import chaiString from 'chai-string';
 import httpStatus from 'http-status';
-import { startServer, closeServer } from '../../main';
+import { closeServer, startServer } from '../../main';
 import {
-  registerUser,
-  getAccessTokenCookie,
-  saveArticle,
-  updateArticle,
-  cleanUpUser,
   cleanUpArticle,
   cleanUpTag,
+  cleanUpUser,
+  getAccessTokenCookie,
   getEmailAuthToken,
+  registerUser,
+  saveArticle,
+  updateArticle,
 } from './api-helper';
 
 chai.use(chaiString);
@@ -34,7 +34,7 @@ describe('User API', () => {
       tags: [testTagName],
     });
     done();
-  });
+  }, 10000);
 
   afterAll(async (done) => {
     await cleanUpTag();

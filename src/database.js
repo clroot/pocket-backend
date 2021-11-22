@@ -20,8 +20,8 @@ class Database {
 
   async connect() {
     if (this.NODE_ENV === 'test') {
-      this.memoryServer = new MongoMemoryServer();
-      this.mongoUri = await this.memoryServer.getUri();
+      this.memoryServer = await MongoMemoryServer.create();
+      this.mongoUri = this.memoryServer.getUri();
     }
     mongoose
       .connect(this.mongoUri, this.mongooseOpt)
