@@ -16,12 +16,13 @@ else
   PORT=4002
 fi
 
+docker build ${HOST_DIR}/${BACK_END_REPO} -t ${DOCKER_APP_NAME}
+
 echo "$RUN_TARGET is available"
 docker run -d --name ${DOCKER_APP_NAME}-${RUN_TARGET} \
-  -v $HOST_DIR/$BACK_END_REPO:/deploy/node-app \
-  -v $HOST_DIR/$FRONT_END_REPO/build:/deploy/frontend/build \
+  -v $HOST_DIR/$FRONT_END_REPO/build:/app/pocket-frontend/build \
   -p $PORT:4000 \
-  clroot/node-app
+  ${DOCKER_APP_NAME}
 sleep 5
 echo "$RUN_TARGET is up"
 
@@ -30,7 +31,7 @@ sudo service nginx reload
 EXIST_REMOVE_TARGET=$(docker ps -a | grep ${DOCKER_APP_NAME}-${REMOVE_TARGET})
 
 if [ "$EXIST_REMOVE_TARGET" ]; then
-  echo "stoping previous host $REMOVE_TARGET...."
+  echo "stopping previous container $REMOVE_TARGET...."
   docker rm -f ${DOCKER_APP_NAME}-${REMOVE_TARGET}
 fi
 
