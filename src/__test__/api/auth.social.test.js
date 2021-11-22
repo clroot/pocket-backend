@@ -3,7 +3,7 @@ import chai, { expect } from 'chai';
 import chaiString from 'chai-string';
 import sinon from 'sinon';
 import httpStatus from 'http-status';
-import { startServer, closeServer } from '../../';
+import { closeServer, startServer } from '../../';
 import * as Email from '../../lib/email';
 
 chai.use(chaiString);

@@ -1,14 +1,12 @@
 import request from 'supertest';
-import chai, { assert, expect } from 'chai';
-import chaiString from 'chai-string';
 import httpStatus from 'http-status';
-import { startServer, closeServer } from '../../';
+import { closeServer, startServer } from '../../';
 import {
+  cleanUpArticle,
+  cleanUpUser,
+  getAccessTokenCookie,
   registerUser,
   removeUser,
-  getAccessTokenCookie,
-  cleanUpUser,
-  cleanUpArticle,
   saveArticle,
 } from './api-helper';
 import { generateObjectId } from '../test-utils';
@@ -27,7 +25,7 @@ describe('Article API', () => {
     await registerUser();
     accessTokenCookie = await getAccessTokenCookie(server);
     done();
-  });
+  }, 10000);
 
   afterAll(async (done) => {
     await cleanUpArticle();

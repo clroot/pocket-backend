@@ -3,13 +3,8 @@ import chai, { assert, expect } from 'chai';
 import chaiString from 'chai-string';
 import sinon from 'sinon';
 import httpStatus from 'http-status';
-import { startServer, closeServer } from '../../';
-import {
-  testUserInfo,
-  registerUser,
-  getAccessTokenCookie,
-  cleanUpUser,
-} from './api-helper';
+import { closeServer, startServer } from '../../';
+import { cleanUpUser, getAccessTokenCookie, registerUser, testUserInfo } from './api-helper';
 import * as Email from '../../lib/email';
 
 chai.use(chaiString);
@@ -21,7 +16,7 @@ describe('Authentication API', () => {
   beforeAll(async (done) => {
     server = await startServer();
     done();
-  });
+  }, 10000);
 
   afterAll(async (done) => {
     await closeServer(server);
