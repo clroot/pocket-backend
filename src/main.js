@@ -1,4 +1,4 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
 import Koa from 'koa';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
@@ -11,6 +11,8 @@ import getPort from 'get-port';
 import Database from './database';
 import api from './api';
 import { consumeUser } from './lib/token';
+
+dotenv.config();
 
 const { PORT } = process.env;
 
@@ -25,7 +27,7 @@ app.use(bodyParser());
 app.use(consumeUser);
 app.use(router.routes()).use(router.allowedMethods());
 
-const buildDirectory = path.resolve(__dirname, '../../frontend/build');
+const buildDirectory = path.resolve(__dirname, process.env.FRONTEND_BUILD_DIR);
 app.use(serve(buildDirectory));
 app.use(async (ctx) => {
   if (ctx.status === 404 && ctx.path.indexOf('/api') !== 0) {
