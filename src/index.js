@@ -10,7 +10,7 @@ export const startServer = async (
   callback = undefined,
 ) => {
 
-  await Database.connect();
+  Database.connect()
   if (process.env.NODE_ENV === 'test') {
     port = await getPort({ port: getPort.makeRange(4001, 5000) });
   }
