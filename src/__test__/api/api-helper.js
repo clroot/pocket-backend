@@ -5,8 +5,8 @@ import { Article, EmailAuth, Tag, User } from '../../models';
 
 /* AUTH */
 export const testUserInfo = {
-  email: 'clroot@kakao.com',
-  username: 'clroot',
+  email: `test${+new Date() % 12345}@email.com`,
+  username: `test${+new Date() % 12345}`,
   password: 'password',
 };
 
