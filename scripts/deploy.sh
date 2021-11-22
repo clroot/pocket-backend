@@ -19,7 +19,7 @@ fi
 echo "$RUN_TARGET is available"
 docker run -d --name ${DOCKER_APP_NAME}-${RUN_TARGET} \
   -v $HOST_DIR/$BACK_END_REPO:/deploy/node-app \
-  -v $HOST_DIR/$FRONT_END_REPO:/deploy/frontend/build \
+  -v $HOST_DIR/$FRONT_END_REPO/build:/deploy/frontend/build \
   -p $PORT:4000 \
   clroot/node-app
 sleep 5
