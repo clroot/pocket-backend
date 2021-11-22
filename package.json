@@ -11,7 +11,7 @@
     "test:watch": "yarn test:dev --watch --silent"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.2",
     "bcrypt": "^5.0.0",
     "cheerio": "^1.0.0-rc.3",
     "cross-env": "^7.0.2",
