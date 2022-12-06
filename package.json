@@ -33,7 +33,7 @@
     "nodemailer-smtp-transport": "^2.7.4",
     "open-graph-scraper": "^4.11.0",
     "pm2": "^5.1.2",
-    "qs": "^6.10.1"
+    "qs": "^6.10.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",
